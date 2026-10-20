@@ -17,7 +17,7 @@ Papan juga bisa dimainkan dengan papan ketik: `Tab` untuk masuk ke papan, panah 
 
 - Semua aturan resmi: rokade (pendek dan panjang), en passant, promosi, skak, skakmat, dan pat.
 - Remis otomatis: pat, materi tidak cukup, aturan 50 langkah, dan pengulangan posisi tiga kali.
-- Tombol **Batal langkah**, **Putar papan**, **Remis** (atas kesepakatan), **Menyerah**, dan **Permainan baru**.
+- Tombol **Batalkan langkah**, **Putar papan**, **Remis** (atas kesepakatan), **Menyerah**, dan **Permainan baru**.
 - Opsi memutar papan otomatis setiap ganti giliran, supaya pemain yang sedang jalan selalu di bawah.
 - Lembar langkah dengan notasi aljabar figurin (misalnya ♘f3), daftar bidak yang dimakan, dan selisih materi.
 - Permainan tersimpan otomatis di browser; memuat ulang halaman tidak menghapus permainan.

@@ -15,6 +15,8 @@
   const VALUE = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
   const STORE_KEY = 'catur-dua-pemain:v1';
   const DRAG_THRESHOLD = 5;
+  // Klik yang datang sesaat setelah mouse/sentuhan sudah ditangani oleh event penunjuk.
+  const POINTER_CLICK_WINDOW = 800;
 
   const $ = (id) => document.getElementById(id);
   const boardEl = $('board');
@@ -36,8 +38,12 @@
   let selected = -1;
   let pendingPromo = null; // { from, to }
   let confirmAction = null;
+  let confirmTrigger = null;
   let focusPos = 52; // posisi tampilan yang bisa di-Tab (e2 saat Putih di bawah)
+  let refocusBoard = false;
   let drag = null;
+  let lastPointerAt = -Infinity;
+  let statusKey = '';
 
   // 64 tombol kotak dibuat sekali; isinya diperbarui setiap render.
   const squares = [];
@@ -47,7 +53,8 @@
     btn.className = 'sq';
     btn.dataset.pos = String(pos);
     btn.innerHTML = '<span class="piece" aria-hidden="true"></span>' +
-      '<span class="coord rank" aria-hidden="true"></span><span class="coord file" aria-hidden="true"></span>';
+      '<span class="coord rank" aria-hidden="true"></span><span class="coord file" aria-hidden="true"></span>' +
+      '<span class="ring" aria-hidden="true"></span>';
     boardEl.appendChild(btn);
     squares.push(btn);
   }
@@ -55,47 +62,66 @@
   const sqAt = (pos) => (flipped ? 63 - pos : pos);
   const other = (c) => (c === 'w' ? 'b' : 'w');
 
-  function pieceNode(p, tag) {
-    const span = document.createElement(tag || 'span');
+  function pieceNode(p) {
+    const span = document.createElement('span');
     span.className = 'piece ' + colorOf(p);
     span.textContent = GLYPH[typeOf(p)] + VS15;
     span.setAttribute('aria-hidden', 'true');
     return span;
   }
 
-  // SAN -> notasi figurin: huruf bidak diganti simbolnya, misalnya Nf3 -> ♘f3.
-  function fanNode(san) {
+  function hiddenText(text) {
+    const span = document.createElement('span');
+    span.className = 'visually-hidden';
+    span.textContent = text;
+    return span;
+  }
+
+  function spokenMove(m) {
+    let s;
+    if (m.castle) {
+      s = m.castle === 'k' ? 'rokade pendek' : 'rokade panjang';
+    } else {
+      s = PIECE_NAME[typeOf(m.piece)] + ' ' + squareName(m.from) + (m.captured ? ' makan ' : ' ke ') + squareName(m.to);
+      if (m.promotion) s += ', promosi jadi ' + PIECE_NAME[m.promotion];
+    }
+    if (m.san.endsWith('#')) s += ', skakmat';
+    else if (m.san.endsWith('+')) s += ', skak';
+    return s;
+  }
+
+  // Langkah dalam notasi figurin (Nf3 -> ♘f3) untuk mata, plus kalimat lengkap untuk pembaca layar.
+  function moveNode(m) {
     const frag = document.createDocumentFragment();
-    for (const part of san.split(/([KQRBN])/)) {
+    const visual = document.createElement('span');
+    visual.setAttribute('aria-hidden', 'true');
+    for (const part of m.san.split(/([KQRBN])/)) {
       if (!part) continue;
       if (FIGURINE[part]) {
         const fig = document.createElement('span');
         fig.className = 'fig';
         fig.textContent = FIGURINE[part] + VS15;
-        frag.appendChild(fig);
+        visual.appendChild(fig);
       } else {
-        frag.appendChild(document.createTextNode(part));
+        visual.appendChild(document.createTextNode(part));
       }
     }
+    frag.append(visual, hiddenText(SIDE[colorOf(m.piece)] + ': ' + spokenMove(m)));
     return frag;
   }
 
-  function spokenMove(m) {
-    if (m.castle) return m.castle === 'k' ? 'rokade pendek' : 'rokade panjang';
-    let s = PIECE_NAME[typeOf(m.piece)] + ' ' + squareName(m.from) + (m.captured ? ' makan ' : ' ke ') + squareName(m.to);
-    if (m.promotion) s += ', promosi jadi ' + PIECE_NAME[m.promotion];
-    return s;
-  }
-
   function currentStatus() {
-    const s = game.status();
     if (manual) {
       return {
         over: true, check: false, reason: manual.reason, winner: manual.winner || null,
         result: manual.winner === 'w' ? '1-0' : manual.winner === 'b' ? '0-1' : '1/2-1/2',
       };
     }
-    return s;
+    return game.status();
+  }
+
+  function isOver() {
+    return currentStatus().over;
   }
 
   function describe(s) {
@@ -105,13 +131,12 @@
       case 'resign': return [SIDE[s.winner] + ' menang', SIDE[other(s.winner)] + ' menyerah.'];
       case 'agreement': return ['Remis', 'Kedua pemain sepakat remis.'];
       case 'stalemate': return ['Remis: pat', turn + ' tidak punya langkah legal, tetapi rajanya tidak sedang diskak.'];
-      case 'insufficient': return ['Remis', 'Bidak yang tersisa tidak cukup untuk skakmat.'];
-      case 'fifty': return ['Remis', 'Aturan 50 langkah: 50 langkah beruntun tanpa makan bidak atau menjalankan pion.'];
+      case 'insufficient': return ['Remis', 'Sisa bidak tidak cukup untuk skakmat.'];
+      case 'fifty': return ['Remis', 'Aturan 50 langkah: 50 langkah beruntun tanpa ada yang dimakan dan tanpa gerakan pion.'];
       case 'threefold': return ['Remis', 'Posisi yang sama sudah terjadi tiga kali.'];
       default: break;
     }
-    if (s.check) return ['Skak! Giliran ' + turn, 'Raja ' + turn.toLowerCase() + ' harus diselamatkan.'];
-    return ['Giliran ' + turn, null];
+    return [(s.check ? 'Skak! ' : '') + 'Giliran ' + turn, null];
   }
 
   // ---- Render ----
@@ -163,6 +188,11 @@
     buttons.resign.disabled = s.over;
     buttons.resign.textContent = SIDE[game.turn] + ' menyerah';
     autoFlipEl.checked = autoFlip;
+
+    if (refocusBoard) {
+      refocusBoard = false;
+      squares[focusPos].focus({ preventScroll: true });
+    }
   }
 
   function renderPlayers(s, history) {
@@ -186,15 +216,11 @@
       name.textContent = SIDE[color];
       el.append(chip, name);
 
-      if (!s.over && game.turn === color) {
+      const pillText = s.over ? (s.winner === color ? 'Menang' : '') : game.turn === color ? (s.check ? 'Skak' : 'Giliran') : '';
+      if (pillText) {
         const pill = document.createElement('span');
-        pill.className = 'turn-pill' + (s.check ? ' check' : '');
-        pill.textContent = s.check ? 'Skak' : 'Giliran';
-        el.appendChild(pill);
-      } else if (s.over && s.winner === color) {
-        const pill = document.createElement('span');
-        pill.className = 'turn-pill';
-        pill.textContent = 'Menang';
+        pill.className = 'turn-pill' + (pillText === 'Skak' ? ' check' : '');
+        pill.textContent = pillText;
         el.appendChild(pill);
       }
 
@@ -221,23 +247,31 @@
     fill($('player-bottom'), flipped ? 'b' : 'w');
   }
 
+  // Area status adalah live region: hanya diperbarui bila isinya berubah, supaya
+  // pembaca layar tidak mengulang pengumuman setiap kali bidak dipilih.
   function renderStatus(s, last, plies) {
-    const [title, detail] = describe(s);
+    const [title, reason] = describe(s);
+    const key = [title, reason, plies, last ? last.lan : ''].join('|');
     statusEl.classList.toggle('over', s.over);
     statusEl.classList.toggle('check', !s.over && s.check);
+    if (key === statusKey) return;
+    statusKey = key;
+
     $('status-title').textContent = title;
     const detailEl = $('status-detail');
     detailEl.replaceChildren();
-    if (detail) {
-      detailEl.textContent = detail;
-    } else if (last) {
-      const no = Math.ceil(plies / 2);
-      detailEl.append('Langkah terakhir: ' + no + (plies % 2 ? '. ' : '… '), fanNode(last.san));
-      const sr = document.createElement('span');
-      sr.className = 'visually-hidden';
-      sr.textContent = ' (' + SIDE[colorOf(last.piece)] + ': ' + spokenMove(last) + ')';
-      detailEl.appendChild(sr);
-    } else {
+    if (reason) {
+      const r = document.createElement('span');
+      r.className = 'status-line';
+      r.textContent = reason;
+      detailEl.appendChild(r);
+    }
+    if (last) {
+      const line = document.createElement('span');
+      line.className = 'status-line';
+      line.append('Langkah terakhir: ' + Math.ceil(plies / 2) + (plies % 2 ? '. ' : '… '), moveNode(last));
+      detailEl.appendChild(line);
+    } else if (!reason) {
       detailEl.textContent = 'Klik bidak lalu kotak tujuannya, atau seret bidaknya.';
     }
   }
@@ -254,7 +288,7 @@
       for (const j of [i, i + 1]) {
         const td = document.createElement('td');
         td.className = 'ply' + (j === history.length - 1 ? ' current' : '');
-        if (history[j]) td.appendChild(fanNode(history[j].san));
+        if (history[j]) td.appendChild(moveNode(history[j]));
         tr.appendChild(td);
       }
       tbody.appendChild(tr);
@@ -264,7 +298,7 @@
       tr.className = 'result';
       const td = document.createElement('td');
       td.colSpan = 3;
-      td.textContent = s.result.replace('1/2', '½').replace('1/2', '½');
+      td.textContent = s.result.replace(/1\/2/g, '½');
       tr.appendChild(td);
       tbody.appendChild(tr);
     }
@@ -274,25 +308,38 @@
 
   // ---- Aksi permainan ----
 
-  function isOver() {
-    return currentStatus().over;
+  function setFlipped(value) {
+    if (flipped === value) return;
+    flipped = value;
+    // Pertahankan fokus papan ketik pada kotak yang sama, bukan posisi tampilan yang sama.
+    focusPos = 63 - focusPos;
+    if (squares.includes(document.activeElement)) refocusBoard = true;
   }
 
+  // Setiap perubahan posisi atau hasil menutup semua input yang sedang menunggu,
+  // supaya pilihan promosi, seretan, atau konfirmasi lama tidak berlaku untuk posisi baru.
   function afterChange() {
+    const focusWasInPromo = promoEl.contains(document.activeElement);
     selected = -1;
-    if (autoFlip) flipped = game.turn === 'b';
+    pendingPromo = null;
+    promoEl.hidden = true;
+    endDrag();
+    closeConfirm(false, false);
+    if (autoFlip) setFlipped(game.turn === 'b');
+    if (focusWasInPromo) refocusBoard = true;
     render();
     save();
   }
 
   function makeMove(from, to, promotion) {
-    if (!game.move({ from, to, promotion })) return false;
+    if (isOver() || !game.move({ from, to, promotion })) return false;
     afterChange();
     return true;
   }
 
   // Coba jalankan dari `from` ke `to`; buka pilihan promosi bila perlu.
   function attempt(from, to) {
+    if (isOver()) return false;
     const cands = game.moves({ square: from }).filter((m) => m.to === to);
     if (!cands.length) return false;
     if (cands.some((m) => m.promotion)) openPromo(from, to);
@@ -300,7 +347,7 @@
     return true;
   }
 
-  // Tekan sebuah kotak (klik, sentuh, atau Enter). Kembalikan apakah bidak di kotak itu bisa diseret.
+  // Tekan sebuah kotak (klik, sentuh, atau Enter). Kembalikan info bila bidak di kotak itu bisa diseret.
   function press(sq) {
     if (isOver() || pendingPromo) return null;
     if (selected >= 0 && sq !== selected && attempt(selected, sq)) return null;
@@ -340,47 +387,52 @@
 
   function closePromo(choice) {
     const p = pendingPromo;
+    if (!p) return;
+    refocusBoard = promoEl.contains(document.activeElement) || document.activeElement === document.body;
     pendingPromo = null;
     promoEl.hidden = true;
-    if (p && choice) {
-      makeMove(p.from, p.to, choice);
-    } else {
-      render();
-    }
-    squares[focusPos].focus({ preventScroll: true });
+    if (!(choice && makeMove(p.from, p.to, choice))) render();
   }
 
-  function askConfirm(text, okLabel, action) {
+  function askConfirm(text, okLabel, action, trigger) {
     $('confirm-text').textContent = text;
     $('confirm-ok').textContent = okLabel;
     confirmAction = action;
+    confirmTrigger = trigger;
     confirmEl.hidden = false;
     $('confirm-ok').focus();
   }
 
-  function closeConfirm(run) {
+  // `restoreFocus`: kembalikan fokus ke tombol pemicu (atau papan bila tombol itu kini nonaktif),
+  // hanya bila fokus memang sedang berada di panel konfirmasi.
+  function closeConfirm(run, restoreFocus) {
+    if (confirmEl.hidden) return;
+    const hadFocus = confirmEl.contains(document.activeElement);
     const action = confirmAction;
+    const trigger = confirmTrigger;
     confirmAction = null;
+    confirmTrigger = null;
     confirmEl.hidden = true;
     if (run && action) action();
+    if (restoreFocus && hadFocus) {
+      if (trigger && !trigger.disabled) trigger.focus();
+      else squares[focusPos].focus();
+    }
   }
 
   function newGame() {
     game = new Game();
     manual = null;
-    pendingPromo = null;
-    promoEl.hidden = true;
     afterChange();
   }
 
   buttons.undo.addEventListener('click', () => {
-    closeConfirm(false);
     if (manual || !game.undo()) return;
     afterChange();
   });
 
   buttons.flip.addEventListener('click', () => {
-    flipped = !flipped;
+    setFlipped(!flipped);
     render();
     save();
   });
@@ -388,37 +440,36 @@
   buttons.draw.addEventListener('click', () => {
     if (isOver()) return;
     askConfirm('Kedua pemain sepakat mengakhiri permainan dengan remis?', 'Ya, remis', () => {
+      if (isOver()) return;
       manual = { reason: 'agreement' };
       afterChange();
-    });
+    }, buttons.draw);
   });
 
   buttons.resign.addEventListener('click', () => {
     if (isOver()) return;
     const loser = game.turn;
     askConfirm(SIDE[loser] + ' menyerah dan ' + SIDE[other(loser)] + ' dinyatakan menang?', 'Ya, menyerah', () => {
-      if (!isOver() && game.turn === loser) {
-        manual = { reason: 'resign', winner: other(loser) };
-        afterChange();
-      }
-    });
+      if (isOver() || game.turn !== loser) return;
+      manual = { reason: 'resign', winner: other(loser) };
+      afterChange();
+    }, buttons.resign);
   });
 
   buttons.newGame.addEventListener('click', () => {
     if (game.history().length && !isOver()) {
-      askConfirm('Mulai permainan baru? Permainan yang sedang berjalan akan dihapus.', 'Mulai baru', newGame);
+      askConfirm('Mulai permainan baru? Permainan yang sedang berjalan akan dihapus.', 'Mulai baru', newGame, buttons.newGame);
     } else {
-      closeConfirm(false);
       newGame();
     }
   });
 
-  $('confirm-ok').addEventListener('click', () => closeConfirm(true));
-  $('confirm-cancel').addEventListener('click', () => closeConfirm(false));
+  $('confirm-ok').addEventListener('click', () => closeConfirm(true, true));
+  $('confirm-cancel').addEventListener('click', () => closeConfirm(false, true));
 
   autoFlipEl.addEventListener('change', () => {
     autoFlip = autoFlipEl.checked;
-    if (autoFlip) flipped = game.turn === 'b';
+    if (autoFlip) setFlipped(game.turn === 'b');
     render();
     save();
   });
@@ -428,8 +479,12 @@
     if (btn) closePromo(btn.dataset.piece);
   });
   $('promo-cancel').addEventListener('click', () => closePromo(null));
-  promoEl.addEventListener('click', (e) => {
-    if (e.target === promoEl) closePromo(null);
+  // Batal lewat latar gelap saat penekanan dimulai di sana. Memakai pointerdown, bukan click:
+  // ketukan yang membuka dialog menghasilkan click yang jatuh di latar ini.
+  promoEl.addEventListener('pointerdown', (e) => {
+    if (e.target !== promoEl) return;
+    e.preventDefault();
+    closePromo(null);
   });
   promoEl.addEventListener('keydown', (e) => {
     const opts = Array.from(promoOptions.children);
@@ -442,9 +497,15 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (pendingPromo) closePromo(null);
-    else if (!confirmEl.hidden) closeConfirm(false);
-    else if (selected >= 0) {
+    if (drag) {
+      endDrag();
+      selected = -1;
+      render();
+    } else if (pendingPromo) {
+      closePromo(null);
+    } else if (!confirmEl.hidden) {
+      closeConfirm(false, true);
+    } else if (selected >= 0) {
       selected = -1;
       render();
     }
@@ -452,17 +513,16 @@
 
   // ---- Papan: penunjuk (mouse/sentuh) ----
 
+  const notePointer = () => { lastPointerAt = performance.now(); };
+  document.addEventListener('pointerdown', notePointer, true);
+  document.addEventListener('pointerup', notePointer, true);
+
   function squareFromPoint(x, y) {
     const r = boardEl.getBoundingClientRect();
     const col = Math.floor(((x - r.left) / r.width) * 8);
     const row = Math.floor(((y - r.top) / r.height) * 8);
     if (col < 0 || col > 7 || row < 0 || row > 7) return -1;
     return sqAt(row * 8 + col);
-  }
-
-  function placeGhost(x, y) {
-    const size = drag.size;
-    ghostEl.style.transform = 'translate(' + (x - size / 2) + 'px,' + (y - size / 2) + 'px)';
   }
 
   function setDropHover(sq) {
@@ -476,9 +536,7 @@
     ghostEl.hidden = true;
     ghostEl.replaceChildren();
     setDropHover(-1);
-    if (boardEl.hasPointerCapture && boardEl.hasPointerCapture(d.pointerId)) {
-      boardEl.releasePointerCapture(d.pointerId);
-    }
+    if (boardEl.hasPointerCapture(d.pointerId)) boardEl.releasePointerCapture(d.pointerId);
     return d;
   }
 
@@ -488,7 +546,7 @@
     if (!btn || drag) return;
     e.preventDefault();
     focusPos = Number(btn.dataset.pos);
-    closeConfirm(false);
+    closeConfirm(false, false);
     const sq = Number(btn.dataset.sq);
     const res = press(sq);
     if (!res) return;
@@ -506,14 +564,13 @@
     if (!drag.active) {
       if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < DRAG_THRESHOLD) return;
       drag.active = true;
-      const p = game.get(drag.sq);
-      ghostEl.replaceChildren(pieceNode(p));
+      ghostEl.replaceChildren(pieceNode(game.get(drag.sq)));
       ghostEl.style.width = ghostEl.style.height = drag.size + 'px';
       ghostEl.style.fontSize = drag.size * 0.82 + 'px';
       ghostEl.hidden = false;
       render();
     }
-    placeGhost(e.clientX, e.clientY);
+    ghostEl.style.transform = 'translate(' + (e.clientX - drag.size / 2) + 'px,' + (e.clientY - drag.size / 2) + 'px)';
     const over = squareFromPoint(e.clientX, e.clientY);
     setDropHover(over !== drag.sq ? over : -1);
   });
@@ -538,9 +595,10 @@
     render();
   });
 
-  // Klik dari papan ketik (Enter/Spasi) punya detail 0; klik penunjuk sudah ditangani di atas.
+  // Klik tanpa event penunjuk sebelumnya: Enter/Spasi, atau aktivasi dari pembaca layar
+  // dan kontrol suara. Klik mouse/sentuhan sudah ditangani lewat pointerdown di atas.
   boardEl.addEventListener('click', (e) => {
-    if (e.detail !== 0) return;
+    if (performance.now() - lastPointerAt < POINTER_CLICK_WINDOW) return;
     const btn = e.target.closest('.sq');
     if (!btn) return;
     focusPos = Number(btn.dataset.pos);

@@ -19,12 +19,15 @@
   --hint: rgba(20, 32, 24, 0.3);
   --check: #e2483f;
   --check-ink: #b3302a;
+  --check-strong: #b3302a;
   --focus: #1d5fbf;
+  --focus-halo: #ffffff;
   --scrim: rgba(14, 20, 16, 0.55);
   --shadow: rgba(20, 30, 22, 0.2);
   --piece-w: #fbfbf6;
   --piece-w-edge: #262622;
   --piece-b: #1b1c19;
+  --piece-b-edge: transparent;
 
   --font-display: "Big Shoulders", "Arial Narrow", "Roboto Condensed", sans-serif;
   --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -53,8 +56,10 @@
     --check: #e2483f;
     --check-ink: #ff7d70;
     --focus: #7fb2ff;
+    --focus-halo: #0b0f0c;
     --scrim: rgba(4, 8, 6, 0.65);
     --shadow: rgba(0, 0, 0, 0.5);
+    --piece-b-edge: #8d9c90;
     color-scheme: dark;
   }
 }
@@ -79,8 +84,10 @@
   --check: #e2483f;
   --check-ink: #ff7d70;
   --focus: #7fb2ff;
+  --focus-halo: #0b0f0c;
   --scrim: rgba(4, 8, 6, 0.65);
   --shadow: rgba(0, 0, 0, 0.5);
+  --piece-b-edge: #8d9c90;
   color-scheme: dark;
 }
 
@@ -217,7 +224,7 @@ button {
 }
 
 .turn-pill.check {
-  background: var(--check);
+  background: var(--check-strong);
   color: #fff;
 }
 
@@ -354,10 +361,20 @@ button {
   box-shadow: inset 0 0 0 0.6cqi rgba(255, 255, 255, 0.7);
 }
 
+/* Cincin fokus dua warna di lapisan teratas, supaya tetap terlihat di atas sorotan dan bidak. */
 .sq:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 0.75cqi var(--focus);
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
   z-index: 3;
+  pointer-events: none;
+}
+
+.sq:focus-visible .ring {
+  box-shadow: inset 0 0 0 0.6cqi var(--focus), inset 0 0 0 1cqi var(--focus-halo);
 }
 
 .piece {
@@ -387,12 +404,12 @@ button {
 }
 
 .captured .piece.w {
-  -webkit-text-stroke: 0.06em var(--piece-w-edge);
+  -webkit-text-stroke: 0.03em var(--piece-w-edge);
   text-shadow: none;
 }
 
 .captured .piece.b {
-  color: var(--ink);
+  -webkit-text-stroke: 0.04em var(--piece-b-edge);
   text-shadow: none;
 }
 
@@ -501,6 +518,18 @@ button {
 
 .promo-option span:last-child {
   font: 500 0.75rem / 1 var(--font-body);
+  white-space: nowrap;
+}
+
+/* Di layar sempit empat pilihan berjajar terlalu kecil untuk labelnya; jadikan 2 x 2. */
+@media (max-width: 420px) {
+  .promo-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .promo-card {
+    padding: 14px 14px 10px;
+  }
 }
 
 .promo-option:hover {
@@ -567,7 +596,10 @@ button {
 
 .status.over .status-detail {
   color: inherit;
-  opacity: 0.85;
+}
+
+.status-line {
+  display: block;
 }
 
 .controls {
@@ -612,7 +644,7 @@ button {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--felt);
-  filter: brightness(1.12);
+  filter: brightness(0.88);
 }
 
 .btn-quiet {
@@ -706,9 +738,10 @@ button {
   text-align: left;
 }
 
+/* Lebar dalam rem: dengan table-layout fixed, baris judul (berhuruf kecil) yang menentukan lebar kolom. */
 .scoresheet th:first-child,
 .scoresheet td:first-child {
-  width: 3.6em;
+  width: 4.2rem;
   color: var(--muted);
 }
 
@@ -718,6 +751,10 @@ button {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.scoresheet td:first-child {
+  text-overflow: clip;
 }
 
 .scoresheet td.ply.current {
@@ -734,6 +771,8 @@ button {
 .fig {
   font-family: var(--font-pieces);
   font-size: 1.1em;
+  font-weight: 400;
+  font-synthesis: none;
   line-height: 1;
 }
 
