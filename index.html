@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catur Dua Pemain</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&text=%E2%99%94%E2%99%95%E2%99%96%E2%99%97%E2%99%98%E2%99%9A%E2%99%9B%E2%99%9C%E2%99%9D%E2%99%9E%E2%99%9F&display=block">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app">
+  <header class="masthead">
+    <h1>Catur</h1>
+    <p>Dua pemain, satu papan. Gantian jalan di perangkat yang sama.</p>
+  </header>
+
+  <section class="table" aria-label="Meja permainan">
+    <div class="player" id="player-top"></div>
+    <div class="board-wrap">
+      <div class="board" id="board" role="group" aria-label="Papan catur"></div>
+      <div class="promo" id="promo" hidden>
+        <div class="promo-card" role="dialog" aria-modal="true" aria-labelledby="promo-title">
+          <p class="promo-title" id="promo-title">Promosikan pion menjadi</p>
+          <div class="promo-options" id="promo-options"></div>
+          <button type="button" class="btn btn-quiet" id="promo-cancel">Batal</button>
+        </div>
+      </div>
+    </div>
+    <div class="player" id="player-bottom"></div>
+  </section>
+
+  <aside class="sheet" aria-label="Status dan riwayat langkah">
+    <div class="status" id="status" aria-live="polite">
+      <p class="status-title" id="status-title"></p>
+      <p class="status-detail" id="status-detail"></p>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="btn" id="btn-undo">Batal langkah</button>
+      <button type="button" class="btn" id="btn-flip">Putar papan</button>
+      <button type="button" class="btn" id="btn-draw">Remis</button>
+      <button type="button" class="btn" id="btn-resign">Menyerah</button>
+      <button type="button" class="btn btn-primary" id="btn-new">Permainan baru</button>
+    </div>
+
+    <div class="confirm" id="confirm" hidden>
+      <p id="confirm-text"></p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-primary" id="confirm-ok"></button>
+        <button type="button" class="btn" id="confirm-cancel">Batal</button>
+      </div>
+    </div>
+
+    <label class="toggle" for="auto-flip">
+      <input type="checkbox" id="auto-flip">
+      <span>Putar papan otomatis setiap ganti giliran</span>
+    </label>
+
+    <section class="scoresheet" aria-labelledby="scoresheet-title">
+      <h2 id="scoresheet-title">Lembar langkah</h2>
+      <div class="scoresheet-scroll" id="scoresheet-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">No.</th><th scope="col">Putih</th><th scope="col">Hitam</th></tr>
+          </thead>
+          <tbody id="moves"></tbody>
+        </table>
+        <p class="scoresheet-empty" id="moves-empty">Belum ada langkah. Putih jalan lebih dulu.</p>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<div class="ghost" id="ghost" aria-hidden="true" hidden></div>
+
+<script src="chess.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "catur-dua-pemain",
+  "version": "1.0.0",
+  "description": "Game catur sederhana di browser untuk dua pemain di satu perangkat",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
