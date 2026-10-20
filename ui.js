@@ -17,6 +17,9 @@
   const DRAG_THRESHOLD = 5;
   // Klik yang datang sesaat setelah mouse/sentuhan sudah ditangani oleh event penunjuk.
   const POINTER_CLICK_WINDOW = 800;
+  // Sisa klik dari ketukan yang membuka dialog promosi datang dalam hitungan milidetik; jendela ini
+  // dibuat lebih pendek supaya pilihan yang sengaja diketuk tidak terhalang.
+  const PROMO_OPEN_GUARD = 400;
 
   const $ = (id) => document.getElementById(id);
   const boardEl = $('board');
@@ -43,6 +46,7 @@
   let refocusBoard = false;
   let drag = null;
   let lastPointerAt = -Infinity;
+  let promoOpenedAt = -Infinity;
   let statusKey = '';
 
   // 64 tombol kotak dibuat sekali; isinya diperbarui setiap render.
@@ -367,6 +371,7 @@
 
   function openPromo(from, to) {
     pendingPromo = { from, to };
+    promoOpenedAt = performance.now();
     promoOptions.replaceChildren();
     const color = game.turn;
     for (const t of ['q', 'r', 'b', 'n']) {
@@ -474,11 +479,15 @@
     save();
   });
 
+  // Klik tiba di pilihan atau Batal sesaat setelah dialog dibuka adalah sisa ketukan yang membukanya
+  // (di ponsel kecil kartu dialog menutupi kotak tujuan), jadi diabaikan.
   promoOptions.addEventListener('click', (e) => {
     const btn = e.target.closest('.promo-option');
-    if (btn) closePromo(btn.dataset.piece);
+    if (btn && performance.now() - promoOpenedAt >= PROMO_OPEN_GUARD) closePromo(btn.dataset.piece);
   });
-  $('promo-cancel').addEventListener('click', () => closePromo(null));
+  $('promo-cancel').addEventListener('click', () => {
+    if (performance.now() - promoOpenedAt >= PROMO_OPEN_GUARD) closePromo(null);
+  });
   // Batal lewat latar gelap saat penekanan dimulai di sana. Memakai pointerdown, bukan click:
   // ketukan yang membuka dialog menghasilkan click yang jatuh di latar ini.
   promoEl.addEventListener('pointerdown', (e) => {
@@ -513,10 +522,6 @@
 
   // ---- Papan: penunjuk (mouse/sentuh) ----
 
-  const notePointer = () => { lastPointerAt = performance.now(); };
-  document.addEventListener('pointerdown', notePointer, true);
-  document.addEventListener('pointerup', notePointer, true);
-
   function squareFromPoint(x, y) {
     const r = boardEl.getBoundingClientRect();
     const col = Math.floor(((x - r.left) / r.width) * 8);
@@ -541,6 +546,7 @@
   }
 
   boardEl.addEventListener('pointerdown', (e) => {
+    lastPointerAt = performance.now();
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const btn = e.target.closest('.sq');
     if (!btn || drag) return;
@@ -576,6 +582,7 @@
   });
 
   boardEl.addEventListener('pointerup', (e) => {
+    lastPointerAt = performance.now();
     if (!drag || e.pointerId !== drag.pointerId) return;
     const d = endDrag();
     if (d.active) {
