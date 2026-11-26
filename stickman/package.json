@@ -1,0 +1,16 @@
+{
+  "name": "stickman-2-5d",
+  "version": "1.0.0",
+  "description": "Video animasi stickman 2.5D dari file cerita JSON",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "sheet": "node render.mjs stories/demo.json --sheet",
+    "render": "node render.mjs stories/demo.json",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  }
+}

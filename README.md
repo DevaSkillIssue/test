@@ -50,3 +50,7 @@ npm test
 Tes memakai test runner bawaan Node (versi 18 ke atas) dan menghitung perft pada posisi-posisi acuan
 dari [Chess Programming Wiki](https://www.chessprogramming.org/Perft_Results) untuk memastikan
 pembangkitan langkah benar.
+
+## Animasi stickman
+
+Folder [`stickman/`](stickman/README.md) berisi pembuat video animasi stickman 2.5D dari file cerita JSON.

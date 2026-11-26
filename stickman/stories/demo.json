@@ -1,0 +1,32 @@
+{
+  "title": "Koin Emas di Pasar",
+  "width": 720,
+  "height": 1280,
+  "fps": 30,
+  "cast": {
+    "budi": { "color": "#3b6fb6", "hat": "cap" },
+    "raja": { "color": "#8e2c48", "hat": "crown" },
+    "sari": { "color": "#3f8f5a", "hat": "hair" }
+  },
+  "shots": [
+    { "text": "Budi cuma pedagang kecil di desa yang miskin.", "set": "village", "camera": "push_in",
+      "actors": [{ "id": "budi", "x": 0, "action": "idle", "face": ["sad", "neutral"] }] },
+    { "text": "Suatu pagi dia menemukan sebuah guci tua di bawah rumahnya.", "camera": "crane_up", "focus": "budi",
+      "actors": [{ "id": "budi", "x": -1, "action": "point", "face": ["shock", "happy"] }], "props": [{ "name": "guci", "x": 1 }] },
+    { "text": "Di dalamnya ada koin emas yang berkilau.", "set": "room", "camera": "push_in",
+      "actors": [{ "id": "budi", "x": -1.2, "action": "cheer", "face": ["happy", "shock"] }], "props": [{ "name": "koin", "x": 0.8 }] },
+    { "text": "Sari langsung bertanya, \"Kamu dapat dari mana?\"", "camera": "pan_right", "speaker": "sari",
+      "actors": [{ "id": "budi", "x": -1.2, "action": "shrug", "face": "smirk" }, { "id": "sari", "x": 1.2, "facing": "left", "action": "idle", "face": ["scared", "shock"] }] },
+    { "text": "Kabar itu terbang ke seluruh pasar.", "set": "village", "camera": "orbit",
+      "actors": [{ "id": "sari", "x": -2, "to": 2, "action": "run", "face": "shock" }, { "id": "budi", "x": 1.5, "action": "idle", "face": ["neutral", "scared"] }] },
+    { "text": "Sampai Raja datang dan berkata, \"Emas itu milik kerajaan!\"", "camera": "low_angle", "speaker": "raja", "focus": "raja",
+      "actors": [{ "id": "raja", "x": 0.8, "action": "point", "face": ["angry", "smirk"], "facing": "left" }, { "id": "budi", "x": -1.4, "action": "idle", "face": "scared" }] },
+    { "text": "Budi diam, lalu tersenyum.", "camera": "shake", "focus": "budi",
+      "actors": [{ "id": "budi", "x": 0, "action": "think", "face": ["neutral", "smirk"] }] },
+    { "text": "Dia membagi semua koin itu ke warga desa.", "set": "field", "camera": "pull_out",
+      "actors": [{ "id": "budi", "x": -1.5, "action": "wave", "face": "happy" }, { "id": "sari", "x": 0.2, "action": "cheer", "face": "happy" }, { "id": "raja", "x": 1.8, "action": "shrug", "face": ["shock", "angry"], "facing": "left" }],
+      "props": [{ "name": "koin", "x": -0.6 }] },
+    { "text": "Dan sejak hari itu, tidak ada yang miskin lagi.", "camera": "crane_up",
+      "actors": [{ "id": "budi", "x": -1.4, "action": "jump", "face": "happy" }, { "id": "sari", "x": 1.4, "action": "jump", "face": "happy", "facing": "left" }] }
+  ]
+}
