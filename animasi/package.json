@@ -4,7 +4,7 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "still": "remotion still src/index.ts GuciShort --gl=angle",
-    "render": "remotion render src/index.ts GuciShort out/guci-terkutuk.mp4 --gl=angle --scale 1.3333333333333333"
+    "render": "remotion render src/index.ts GuciShort out/guci-terkutuk.mp4 --gl=angle --scale 0.6666666666666666"
   },
   "dependencies": {
     "@react-three/fiber": "9.1.2",
