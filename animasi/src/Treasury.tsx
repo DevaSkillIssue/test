@@ -59,6 +59,9 @@ const OvalBox: React.FC<{ p: V3; c?: string; s?: number }> = ({ p, c = "#f2ece0"
 
 export const Treasury: React.FC<{ f: number; t: number }> = ({ f, t }) => {
   const lid = hit(f, B(3, "guci") - 2, 8, 0.2), yuck = hit(f, B(3, "organ") - 2, 5, 0.3), look = ramp(f, B(3, "kepala"), 8);
+  // the lid rises straight up on "guci" (clear of Carter's head), drops back shut with a small bounce on "organ"
+  const drop = ramp(f, B(3, "organ"), 4), bounce = Math.max(0, Math.sin(clamp01((f - B(3, "organ") - 4) / 8) * Math.PI)) * 0.05;
+  const lidY = 0.36 * Math.min(1, lid) * (1 - drop) + bounce, lidWob = Math.sin(f * 0.35) * 0.04 * (1 - drop);
   return (<>
     <color attach="background" args={["#1a0f08"]} />
     <fog attach="fog" args={["#2a170a", 5, 11]} />
@@ -91,7 +94,7 @@ export const Treasury: React.FC<{ f: number; t: number }> = ({ f, t }) => {
       <Box p={[0, 2.18, 0]} s={[1.55, 0.14, 1.05]} c={GOLD} />
       <Box p={[0, 2.3, 0]} s={[1.6, 0.1, 1.1]} c={GOLD_D} />
       {Array.from({ length: 9 }, (_, i) => <mesh key={i} position={[-0.64 + i * 0.16, 2.44, 0.5]}><coneGeometry args={[0.05, 0.14, 4]} /><Toon c={GOLD} /></mesh>)}
-      {[-0.39, -0.13, 0.13, 0.39].map((x, i) => <Jar key={i} p={[x, 0.82, 0.05]} s={0.62} lidUp={i === 0 ? lid * 0.22 : 0} lidX={i === 0 ? -lid * 0.3 : 0} />)}
+      {[-0.39, -0.13, 0.13, 0.39].map((x, i) => <Jar key={i} p={[x, 0.82, 0.05]} s={0.62} lidUp={i === 0 ? lidY : 0} lidX={i === 0 ? lidWob : 0} />)}
     </group>
     {/* stacked treasure */}
     <OvalBox p={[-1.7, 0.12, -1.0]} /><OvalBox p={[-1.35, 0.12, -1.2]} /><OvalBox p={[-1.55, 0.34, -1.1]} s={0.9} />
@@ -101,16 +104,16 @@ export const Treasury: React.FC<{ f: number; t: number }> = ({ f, t }) => {
     <mesh position={[-2.2, 0.55, -0.9]} rotation={[0, 0.4, 0]}><torusGeometry args={[0.4, 0.04, 8, 24]} /><Toon c={GOLD} /></mesh>
     <Guardian p={[-2.2, 0, -1.2]} r={0.4} /><Guardian p={[2.25, 0, -1.25]} r={-0.4} />
     {/* Anubis in the foreground (framing + near blur) */}
-    <Anubis p={[-1.05, 0, 1.9]} s={0.9} />
+    <Anubis p={[-1.5, 0, 1.75]} s={0.9} />
     {/* dust floating in the lamp light */}
     {Array.from({ length: 40 }, (_, i) => {
       const x = -1.6 + ((i * 0.37) % 3.2), y = 0.4 + ((i * 0.53 + f * 0.002 * (1 + (i % 3))) % 2.2), z = -0.8 + ((i * 0.71) % 2.2);
       return <mesh key={i} position={[x + Math.sin(f * 0.02 + i) * 0.05, y, z]}><sphereGeometry args={[0.006, 4, 4]} /><meshBasicMaterial color={[1.6, 1.3, 0.8]} toneMapped={false} transparent opacity={0.6} /></mesh>;
     })}
     {/* Carter: looks at the heads, reaches, lifts a lid, recoils on "organ" */}
-    <Card o={CARTER} f={f} pos={[-0.4 - yuck * 0.06, 0, 0.35]} seed={2}
+    <Card o={CARTER} f={f} pos={[-0.72 - yuck * 0.06, 0, 0.35]} seed={2}
       opts={{ arm: "reach", armK: Math.min(1, lid), armRaw: true, expr: yuck > 0.4 ? "disgust" : look > 0.5 ? "awe" : "neutral", lean: -18 * yuck + 8 * lid * (1 - yuck), look: 0.6 * look }} />
-    <Cam f={f} t={t} from={[0.0, 1.6, 5.6]} to={[0.05, 1.45, 4.6]} look={[0.0, 1.05, -0.2]} fov={48} />
+    <Cam f={f} t={t} from={[-0.3, 1.6, 5.6]} to={[-0.25, 1.45, 4.6]} look={[-0.28, 1.1, -0.2]} fov={48} />
     <Post light="golden" cInf={11} focus={[-0.3, 1.3, 0.1]} grade={0.6} />
   </>);
 };
