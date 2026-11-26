@@ -41,7 +41,7 @@ const S: React.FC<SP>[] = [
       <Card lit o={SEMMEL} f={f} pos={sPos} seed={7} opts={{ handR: dip > 0.02 ? [455 + (grip[0] - 455) * dip, 640 + (grip[1] - 640) * dip] : undefined, expr: "determined", look: 0.5 }} />
       {[0, 1, 2].map((i) => <Card lit key={i} o={DOC(i)} f={f} seed={20 + i} pos={[0.72 + i * 0.36 + mad * 0.1, 0, -2.75 - (i % 2) * 0.35]}
         opts={{ expr: mad > 0.5 ? (i === 1 ? "furious" : "angry") : "skeptic", lean: -16 * mad, arm: mad > 0.5 ? (i === 0 ? "fold" : i === 1 ? "fist" : "hips") : undefined, look: -0.6 }} />)}
-      <Cuts f={f} end={end} cuts={[{ at: s, from: [0.45, 1.75, 2.3], to: [0.45, 1.65, 1.8], look: [0.45, 1.15, -3.2], fov: 50 }, { at: B(1, "merendam") - 4, from: [-0.05, 1.45, -1.6], to: [-0.05, 1.4, -1.9], look: [0.0, 1.0, -3.4], fov: 40 }, { at: B(1, "marah") - 3, from: [1.2, 1.6, -0.6], to: [1.15, 1.6, -0.9], look: [1.1, 1.4, -2.9], fov: 45 }]} />
+      <Cuts f={f} end={end} cuts={[{ at: s, from: [0.45, 1.75, 2.3], to: [0.45, 1.65, 1.8], look: [0.45, 1.15, -3.2], fov: 50 }, { at: B(1, "seorang") - 3, from: [-0.25, 1.45, -1.2], to: [-0.3, 1.42, -1.45], look: [-0.4, 1.2, -3.15], fov: 42 }, { at: B(1, "merendam") - 4, from: [-0.05, 1.45, -1.6], to: [-0.05, 1.4, -1.9], look: [0.0, 1.0, -3.4], fov: 40 }, { at: B(1, "marah") - 3, from: [1.2, 1.6, -0.6], to: [1.15, 1.6, -0.9], look: [1.1, 1.4, -2.9], fov: 45 }]} />
       <PostPBR f={f} mood="neutral" cInf={7} focus={[0.3, 1.4, -3.1]} />
     </>);
   },
