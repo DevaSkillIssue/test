@@ -1,0 +1,49 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#111">
+<canvas id="c"></canvas>
+<script>
+// Storyboard: grey boxes = set, coloured silhouettes = characters, white arrow = camera move.
+const W=270,H=480,COLS=7,PAD=10,CAP=46;
+const T={carter:'#d98c3a',carn:'#4a7bd1',reporter:'#9b59b6',doc:'#2ecc71',crowd:'#7f8c8d',mosq:'#222'};
+const S=[
+ {t:0,bg:'#1b2a4a',p:'1 · Seekor nyamuk… guci terkutuk',k:'CU · nyamuk',it:[['box',85,250,100,150,'#ddd'],['head',135,240,40,'#c9a227'],['mosq',150,215]],cam:[[135,120],[135,190]]},
+ {t:5.84,bg:'#e0a64a',p:'2 · 1922, Carter membuka makam',k:'Wide · gurun',it:[['box',0,330,270,150,'#b98a4e'],['box',150,250,80,90,'#555'],['fig',120,300,1,T.carter],['glow',150,270]],cam:[[60,80],[200,140]]},
+ {t:13.24,bg:'#6b3d1a',p:'3 · Empat guci kepala raja',k:'Dolly in · peti',it:[['box',40,260,190,130,'#eee'],['head',70,250,22,'#c9a227'],['head',115,250,22,'#c9a227'],['head',160,250,22,'#c9a227'],['head',205,250,22,'#c9a227'],['fig',40,330,0.8,T.carter]],cam:[[135,450],[135,330]]},
+ {t:19.2,bg:'#f2c98a',p:'4 · Carnarvon bercukur, gores gigitan',k:'MS → ECU pisau',it:[['box',150,120,90,150,'#9fc4d8'],['fig',110,300,1.2,T.carn],['blood',125,215],['mosq',190,90]],cam:[[110,420],[125,230]]},
+ {t:27.6,bg:'#3a2f4a',p:'5 · Infeksi, meninggal',k:'MS · tempat tidur',it:[['box',30,300,210,70,'#ccc'],['head',70,290,30,T.carn],['box',200,120,20,90,'#e74c3c']],cam:[[135,100],[135,100]]},
+ {t:30.08,bg:'#2b2b1a',p:'6 · Koran heboh: kutukan!',k:'Wide · mesin cetak',it:[['box',40,260,190,120,'#444'],['paper',60,150],['paper',150,110],['paper',190,200],['paper',100,90]],cam:[[60,400],[210,400]]},
+ {t:33.36,bg:'#5a0f0f',p:'7 · "Maut dengan sayap cepat"',k:'MS · pintu makam (versi koran)',it:[['box',70,120,130,260,'#6d5a40'],['glyph',135,250,'#ff4d4d']],cam:[[135,360],[135,250]]},
+ {t:40.32,bg:'#8a6a3a',p:'8 · Untungnya… tak pernah ada',k:'MS · pintu polos (match cut)',it:[['box',70,120,130,260,'#6d5a40']],cam:[[135,250],[135,250]]},
+ {t:43.52,bg:'#e8dcc0',p:'9 · Sayangnya… di semua koran',k:'Montase · banyak koran',it:[['fig',50,330,0.8,T.crowd],['fig',110,330,0.8,T.crowd],['fig',170,330,0.8,T.crowd],['fig',225,330,0.8,T.crowd],['paper',40,230],['paper',100,230],['paper',160,230],['paper',215,230]],cam:[[30,200],[240,200]]},
+ {t:46.88,bg:'#e0a64a',p:'10 · Hak berita eksklusif',k:'Wide · tali pembatas',it:[['box',150,200,100,130,'#555'],['fig',190,300,0.9,T.reporter],['box',20,330,120,6,'#c0392b'],['fig',40,360,0.8,T.crowd],['fig',90,360,0.8,T.crowd]],cam:[[40,90],[150,150]]},
+ {t:53.32,bg:'#f4e6c8',p:'11 · Pesan berantai grup keluarga',k:'Pan · bisik berantai',it:[['fig',40,320,0.8,T.crowd],['fig',100,320,0.8,T.crowd],['fig',160,320,0.8,T.crowd],['fig',220,320,0.8,T.crowd],['bubble',70,200],['bubble',130,180],['bubble',190,160]],cam:[[30,420],[240,420]]},
+ {t:56.0,bg:'#f7f3ea',p:'12 · 2002: rata-rata 70 tahun',k:'MS · papan tulis',it:[['box',30,110,210,120,'#2d4a3a'],['fig',70,330,1,T.doc],['fig',170,350,0.8,T.crowd],['fig',220,350,0.8,T.crowd]],cam:[[135,400],[135,300]]},
+ {t:63.04,bg:'#f0b860',p:'13 · Carter hidup 16 tahun lagi',k:'MS · taman',it:[['box',0,360,270,120,'#5a9a4a'],['fig',130,330,1,T.carter],['box',170,250,60,6,'#3498db']],cam:[[135,120],[135,160]]},
+ {t:66.05,bg:'#1b2a4a',p:'14 · Kutukannya cuma nyamuk',k:'CU · loop ke shot 1',it:[['box',85,250,100,150,'#ddd'],['head',135,240,40,'#c9a227'],['mosq',150,215]],cam:[[135,190],[135,190]]},
+];
+const c=document.getElementById('c'),rows=Math.ceil(S.length/COLS);
+c.width=COLS*(W+PAD)+PAD;c.height=rows*(H+CAP+PAD)+PAD;const g=c.getContext('2d');
+function fig(x,y,s,col){g.fillStyle=col;g.beginPath();g.arc(x,y-70*s,16*s,0,7);g.fill();g.fillRect(x-14*s,y-52*s,28*s,52*s);g.fillRect(x-12*s,y,9*s,22*s);g.fillRect(x+3*s,y,9*s,22*s);}
+function arrow(a,b){if(a[0]==b[0]&&a[1]==b[1]){g.strokeStyle='#fff';g.lineWidth=3;g.strokeRect(a[0]-12,a[1]-8,24,16);return;}
+ g.strokeStyle='#fff';g.fillStyle='#fff';g.lineWidth=4;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();
+ const an=Math.atan2(b[1]-a[1],b[0]-a[0]);g.beginPath();g.moveTo(...b);g.lineTo(b[0]-16*Math.cos(an-.5),b[1]-16*Math.sin(an-.5));g.lineTo(b[0]-16*Math.cos(an+.5),b[1]-16*Math.sin(an+.5));g.fill();}
+S.forEach((s,i)=>{const ox=PAD+(i%COLS)*(W+PAD),oy=PAD+Math.floor(i/COLS)*(H+CAP+PAD);
+ g.save();g.translate(ox,oy);g.beginPath();g.rect(0,0,W,H);g.clip();g.fillStyle=s.bg;g.fillRect(0,0,W,H);
+ for(const it of s.it){const [t,x,y]=it;
+  if(t=='box'){g.fillStyle=it[5];g.fillRect(x,y,it[3],it[4]);}
+  if(t=='fig')fig(x,y,it[3],it[4]);
+  if(t=='head'){g.fillStyle=it[4];g.beginPath();g.arc(x,y,it[3]/2,0,7);g.fill();}
+  if(t=='mosq'){g.strokeStyle='#000';g.lineWidth=2;g.fillStyle='#000';g.beginPath();g.ellipse(x,y,7,3,0,0,7);g.fill();g.fillStyle='rgba(255,255,255,.6)';g.beginPath();g.ellipse(x-3,y-6,6,3,-.5,0,7);g.ellipse(x+3,y-6,6,3,.5,0,7);g.fill();}
+  if(t=='blood'){g.fillStyle='#c0392b';g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+  if(t=='glow'){g.fillStyle='rgba(255,220,120,.7)';g.beginPath();g.arc(x,y,14,0,7);g.fill();}
+  if(t=='paper'){g.fillStyle='#f5f0e0';g.fillRect(x,y,45,60);g.fillStyle='#333';for(let k=0;k<5;k++)g.fillRect(x+5,y+8+k*10,35,3);}
+  if(t=='glyph'){g.fillStyle=it[3];for(let k=0;k<4;k++){g.fillRect(x-40,y-50+k*28,14,14);g.beginPath();g.arc(x,y-43+k*28,7,0,7);g.fill();g.fillRect(x+24,y-50+k*28,6,18);}}
+  if(t=='bubble'){g.fillStyle='#fff';g.beginPath();g.ellipse(x,y,26,16,0,0,7);g.fill();g.fillStyle='#e74c3c';g.font='bold 18px sans-serif';g.fillText('!!',x-8,y+6);}
+ }
+ arrow(...s.cam);
+ // Shorts safe zone guide (top 8, right 16, bottom 25, left 4 %)
+ g.strokeStyle='rgba(255,255,255,.35)';g.setLineDash([5,5]);g.lineWidth=1;g.strokeRect(W*.04,H*.08,W*.80,H*.67);g.setLineDash([]);
+ g.restore();
+ g.fillStyle='#eee';g.font='bold 14px sans-serif';g.fillText(s.p,ox,oy+H+18);
+ g.fillStyle='#aaa';g.font='13px sans-serif';g.fillText(s.t.toFixed(2)+' s · '+s.k,ox,oy+H+37);
+});
+</script>
