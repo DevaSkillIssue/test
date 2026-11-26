@@ -108,15 +108,47 @@ export const Paper: React.FC<{ p: V3; r?: V3; s?: number }> = ({ p, r = [0, 0, 0
 };
 
 // ---------------- light + camera ----------------
-export const Light: React.FC<{ sky: string; sun: string; ground?: string; k?: number; dir?: V3; bg: string; fog?: [number, number] }> =
-  ({ sky, sun, ground = "#3a2a20", k = 1, dir = [3, 6, 4], bg, fog }) => (
+export const Light: React.FC<{ sky: string; sun: string; ground?: string; k?: number; dir?: V3; bg: string; fog?: [number, number]; hemi?: number }> =
+  ({ sky, sun, ground = "#3a2a20", k = 1, dir = [3, 6, 4], bg, fog, hemi = 0.55 }) => (
     <>
       <color attach="background" args={[bg]} />
       {fog && <fog attach="fog" args={[bg, fog[0], fog[1]]} />}
-      <hemisphereLight args={[sky, ground, 0.9 * k]} />
-      <directionalLight position={dir} intensity={2.2 * k} color={sun} />
+      <hemisphereLight args={[sky, ground, hemi * k]} />
+      {/* key light with real shadows (the sun or the moon) */}
+      <directionalLight position={dir} intensity={2.6 * k} color={sun} castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0006}
+        shadow-normalBias={0.02} shadow-camera-left={-6} shadow-camera-right={6} shadow-camera-top={6} shadow-camera-bottom={-6} shadow-camera-far={40} />
     </>
   );
+/** practical lamp: a hot bulb (bloom) plus a warm point light with shadows; `k` dims it */
+export const Lamp: React.FC<{ p: V3; f: number; k?: number; col?: string }> = ({ p, f, k = 1, col = "#ffb45a" }) => {
+  const flick = 1 + 0.04 * Math.sin(f * 0.9) + 0.03 * Math.sin(f * 2.3), b = flick * Math.max(0.15, k);
+  return (
+    <group position={p}>
+      <mesh position={[0, -0.12, 0]}><cylinderGeometry args={[0.05, 0.07, 0.1, 10]} /><Toon c="#3a2a1a" /></mesh>
+      <mesh><sphereGeometry args={[0.07, 14, 10]} /><meshBasicMaterial color={[3.0 * b, 2.3 * b, 1.2 * b]} toneMapped={false} /></mesh>
+      <pointLight color={col} intensity={4.5 * k * flick} distance={6} decay={1.6} castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.002} />
+    </group>
+  );
+};
+/** glowing window pane (emissive > 1 so it blooms) */
+export const Win: React.FC<{ p: V3; s: [number, number]; c?: [number, number, number] }> = ({ p, s, c = [1.6, 1.3, 0.8] }) => (
+  <group position={p}>
+    <mesh position={[0, 0, -0.01]}><boxGeometry args={[s[0] + 0.08, s[1] + 0.08, 0.04]} /><Toon c="#3a2a1e" /></mesh>
+    <mesh><planeGeometry args={s} /><meshBasicMaterial color={c} toneMapped={false} /></mesh>
+    <mesh position={[0, 0, 0.01]}><boxGeometry args={[0.03, s[1], 0.02]} /><Toon c="#3a2a1e" /></mesh>
+  </group>
+);
+/** a simple town house facade: wall, door, two windows, an awning */
+export const House: React.FC<{ p: V3; w?: number; h?: number; c: string; awn?: string }> = ({ p, w = 2.2, h = 3.2, c, awn = "#c0392b" }) => (
+  <group position={p}>
+    <mesh position={[0, h / 2, 0]}><boxGeometry args={[w, h, 0.6]} /><Toon c={c} /></mesh>
+    <mesh position={[0, h + 0.08, 0]}><boxGeometry args={[w + 0.15, 0.16, 0.75]} /><Toon c="#5a4030" /></mesh>
+    <mesh position={[-w * 0.22, 0.6, 0.31]}><boxGeometry args={[0.6, 1.2, 0.04]} /><Toon c="#4a2e1e" /></mesh>
+    <Win p={[w * 0.22, 1.0, 0.31]} s={[0.5, 0.6]} c={[0.35, 0.45, 0.6]} />
+    <Win p={[0, h - 0.9, 0.31]} s={[0.6, 0.6]} c={[0.35, 0.45, 0.6]} />
+    <mesh position={[0, 1.55, 0.55]} rotation={[0.45, 0, 0]}><boxGeometry args={[w * 0.9, 0.04, 0.6]} /><Toon c={awn} /></mesh>
+  </group>
+);
 /** eased camera move from a to b over the shot (t 0..1), with a tiny handheld drift so the frame is never dead */
 export const Cam: React.FC<{ t: number; from: V3; to: V3; look: V3; lookTo?: V3; fov?: number; f: number }> = ({ t, from, to, look, lookTo, fov = 40, f }) => {
   const cam = useThree((s) => s.camera) as THREE.PerspectiveCamera;
@@ -150,10 +182,13 @@ export const Post: React.FC<{ light: LightName; cInf: number; focus: V3; grade?:
     bloom: makeBloom(), tone: new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }), grade: new GradeEffect(GRADES[light], grade),
   }), [scene, camera]); // eslint-disable-line react-hooks/exhaustive-deps
   noInkFallback(scene);
-  const cam = camera as THREE.PerspectiveCamera, fwd = new THREE.Vector3();
-  cam.getWorldDirection(fwd);
-  fx.lens.focus = Math.max(0.3, new THREE.Vector3(...focus).sub(cam.position).dot(fwd));
-  fx.lens.cInf = cInf;
+  // after <Cam>'s layout effect (it comes first in the tree), so the focus uses THIS frame's camera
+  useLayoutEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera, fwd = new THREE.Vector3();
+    cam.getWorldDirection(fwd);
+    fx.lens.focus = Math.max(0.3, new THREE.Vector3(...focus).sub(cam.position).dot(fwd));
+    fx.lens.cInf = cInf;
+  });
   return (
     <EffectComposer multisampling={4}>
       {[fx.ink, fx.lens.pre, fx.lens.main, fx.bloom, fx.tone, fx.grade].map((o, i) => <primitive key={i} object={o} dispose={null} />)}

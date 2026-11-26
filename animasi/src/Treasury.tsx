@@ -2,7 +2,7 @@
 // king's-head lids), Anubis on his gilded shrine in the foreground, stacked boxes and guardians, ochre painted walls,
 // two practical lamps (bloom + shadows), dust in the light. Carter lifts a lid on "guci" and recoils on "organ".
 import React from "react";
-import { Box, Card, Jar, Toon, Cam, Post, Shadows, CARTER, V3, toCard } from "./kit";
+import { Box, Card, Jar, Toon, Cam, Post, Shadows, Lamp, CARTER, V3, toCard } from "./kit";
 import { B, ramp, smooth, clamp01 } from "./story";
 import { INK } from "./toon";
 
@@ -17,16 +17,6 @@ const hit = (f: number, at: number, d = 6, os = 0.28) => {
   return 1 + os * (1 - smooth(v));
 };
 
-const Lamp: React.FC<{ p: V3; f: number; k?: number }> = ({ p, f, k = 1 }) => {
-  const flick = 1 + 0.04 * Math.sin(f * 0.9) + 0.03 * Math.sin(f * 2.3);
-  return (
-    <group position={p}>
-      <mesh position={[0, -0.12, 0]}><cylinderGeometry args={[0.05, 0.07, 0.1, 10]} /><Toon c="#3a2a1a" /></mesh>
-      <mesh><sphereGeometry args={[0.07, 14, 10]} /><meshBasicMaterial color={[3.0 * flick, 2.3 * flick, 1.2 * flick]} toneMapped={false} /></mesh>
-      <pointLight color="#ffb45a" intensity={4.5 * k * flick} distance={6} decay={1.6} castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.002} />
-    </group>
-  );
-};
 const Anubis: React.FC<{ p: V3; s?: number }> = ({ p, s = 1 }) => (
   <group position={p} scale={s} rotation={[0, 0.35, 0]}>
     {/* gilded shrine with carrying poles */}
