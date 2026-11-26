@@ -20,13 +20,18 @@ export const CROWD = (v: number): Outfit => townsfolk(v);
 // ---------------- character card ----------------
 const NOINK_L = (() => { const l = new THREE.Layers(); l.set(3); return l; })(); // = NOINK in ink.ts
 const CW = 360, CH = 600; // canvas px (design space 600 x 1000)
-type CardP = { o: Outfit; f: number; pos: V3; h?: number; seed?: number; rotZ?: number; opts?: FrontOpts; flipX?: boolean };
+type CardP = { o: Outfit; f: number; pos: V3; h?: number; seed?: number; rotZ?: number; opts?: FrontOpts; flipX?: boolean; lit?: boolean };
 /** a flat 2D character standing in the 3D world; idles (breath + blink) on every frame, so nobody is ever frozen */
-export const Card: React.FC<CardP> = ({ o, f, pos, h = 1.8, seed = 1, rotZ = 0, opts = {}, flipX }) => {
-  const { cv, tex } = useMemo(() => {
+export const Card: React.FC<CardP> = ({ o, f, pos, h = 1.8, seed = 1, rotZ = 0, opts = {}, flipX, lit }) => {
+  const { cv, tex, litMat, depth, dist } = useMemo(() => {
     const cv = document.createElement("canvas"); cv.width = CW; cv.height = CH;
     const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
-    return { cv, tex };
+    // lit card (pbr look): takes the scene light and shadows, keeps 35 % self-light so faces never go muddy, and casts a
+    // cut-out shadow (depth/distance materials read the drawing's alpha)
+    const litMat = new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.4, side: THREE.DoubleSide, emissive: new THREE.Color("#ffffff"), emissiveMap: tex, emissiveIntensity: 0.35 });
+    const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: tex, alphaTest: 0.4 });
+    const dist = new THREE.MeshDistanceMaterial({ map: tex, alphaTest: 0.4 });
+    return { cv, tex, litMat, depth, dist };
   }, []);
   const g = cv.getContext("2d")!;
   g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, CW, CH); g.setTransform(CW / 600, 0, 0, CH / 1000, 0, 0);
@@ -36,14 +41,18 @@ export const Card: React.FC<CardP> = ({ o, f, pos, h = 1.8, seed = 1, rotZ = 0, 
   const breath = 1 + 0.012 * Math.sin(f * 0.13 + seed);
   return (
     <group position={pos} rotation={[0, 0, rotZ]}>
-      <mesh layers={NOINK_L} position={[0, (h * breath) / 2 - h * 0.025, 0]} scale={[flipX ? -1 : 1, breath, 1]}>
-        <planeGeometry args={[h * 0.6, h]} />
-        <meshBasicMaterial map={tex} transparent alphaTest={0.4} side={THREE.DoubleSide} toneMapped={false} />
-      </mesh>
+      {lit
+        ? <mesh position={[0, (h * breath) / 2 - h * 0.025, 0]} scale={[flipX ? -1 : 1, breath, 1]} material={litMat} customDepthMaterial={depth} customDistanceMaterial={dist} castShadow receiveShadow>
+          <planeGeometry args={[h * 0.6, h]} />
+        </mesh>
+        : <mesh layers={NOINK_L} position={[0, (h * breath) / 2 - h * 0.025, 0]} scale={[flipX ? -1 : 1, breath, 1]}>
+          <planeGeometry args={[h * 0.6, h]} />
+          <meshBasicMaterial map={tex} transparent alphaTest={0.4} side={THREE.DoubleSide} toneMapped={false} />
+        </mesh>}
       {/* contact shadow */}
       <mesh layers={NOINK_L} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} scale={[1, 0.45, 1]}>
         <circleGeometry args={[h * 0.18, 24]} />
-        <meshBasicMaterial color="#000" transparent opacity={0.25} />
+        <meshBasicMaterial color="#000" transparent opacity={lit ? 0.16 : 0.25} depthWrite={false} />
       </mesh>
     </group>
   );
