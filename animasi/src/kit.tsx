@@ -49,6 +49,13 @@ export const Card: React.FC<CardP> = ({ o, f, pos, h = 1.8, seed = 1, rotZ = 0, 
   );
 };
 
+/** world point -> the card's design px (600 x 1000), for rig hand targets (FrontOpts.handR) that must touch a prop.
+ *  Same breath and plane offset as <Card>; the card must face the camera (no rotZ). */
+export const toCard = (w: [number, number], pos: V3, f: number, seed = 1, h = 1.8): [number, number] => {
+  const breath = 1 + 0.012 * Math.sin(f * 0.13 + seed), yc = pos[1] + (h * breath) / 2 - h * 0.025;
+  return [((w[0] - pos[0]) / (h * 0.6) + 0.5) * 600, (0.5 - (w[1] - yc) / (h * breath)) * 1000];
+};
+
 // ---------------- props ----------------
 export const Toon: React.FC<{ c: string; e?: string; ei?: number }> = ({ c, e, ei = 0 }) =>
   <meshToonMaterial color={c} emissive={e ?? "#000"} emissiveIntensity={ei} />;
@@ -56,10 +63,10 @@ export const Box: React.FC<{ p: V3; s: V3; c: string; r?: V3; e?: string; ei?: n
   <mesh position={p} rotation={r}><boxGeometry args={s} /><Toon c={c} e={e} ei={ei} /></mesh>
 );
 /** canopic jar: white calcite body, a gold king's head lid with a striped headdress */
-export const Jar: React.FC<{ p: V3; s?: number; lidUp?: number; lidX?: number }> = ({ p, s = 1, lidUp = 0, lidX = 0 }) => (
+export const Jar: React.FC<{ p: V3; s?: number; lidUp?: number }> = ({ p, s = 1, lidUp = 0 }) => (
   <group position={p} scale={s}>
     <mesh position={[0, 0.25, 0]}><cylinderGeometry args={[0.16, 0.12, 0.5, 20]} /><Toon c="#f1ece0" /></mesh>
-    <group position={[lidX, 0.58 + lidUp, 0]} rotation={[0, 0, lidX * 0.6]}>
+    <group position={[0, 0.58 + lidUp, 0]}>
       <mesh><cylinderGeometry args={[0.2, 0.17, 0.2, 20]} /><Toon c="#2f5aa8" /></mesh>
       <mesh position={[0, 0.04, 0]}><cylinderGeometry args={[0.21, 0.21, 0.04, 20]} /><Toon c="#e0b84a" /></mesh>
       <mesh position={[0, 0.16, 0]}><sphereGeometry args={[0.13, 20, 16]} /><Toon c="#e7c78f" /></mesh>
