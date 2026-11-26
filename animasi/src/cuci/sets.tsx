@@ -40,8 +40,9 @@ export const Bed: React.FC<{ p: V3; blanket: string; f: number; who?: Outfit; se
     <PBox p={[flip ? -0.75 : 0.75, 0.56, 0]} s={[0.32, 0.1, 0.55]} c="#f4f1ea" r={1} />
     {who && <Card lit o={who} f={f} seed={seed} h={1.5} pos={[flip ? 0.55 : -0.55, 0.62, 0.05]} rotZ={flip ? Math.PI / 2 : -Math.PI / 2}
       opts={{ expr: dead ? "dead" : seed % 3 ? "tired" : "sleepy", blink: dead ? 1 : undefined }} />}
-    <PBox p={[flip ? -1.2 : 1.2, 0.3, 0.1]} s={[0.35, 0.6, 0.35]} c="#6a4a32" t="wood" />
-    <Candle p={[flip ? -1.2 : 1.2, 0.6, 0.1]} f={f + seed * 13} k={candle} i={0.6} />
+    {/* bedside table between the beds, at the head end, so the candle reads from the aisle */}
+    <PBox p={[flip ? -0.72 : 0.72, 0.3, 0.72]} s={[0.35, 0.6, 0.35]} c="#6a4a32" t="wood" />
+    <Candle p={[flip ? -0.72 : 0.72, 0.6, 0.72]} f={f + seed * 13} k={candle} i={0.6} />
   </group>
 );
 

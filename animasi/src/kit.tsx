@@ -210,3 +210,13 @@ export const Shadows: React.FC = () => {
   scene.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && o.layers.mask !== 1 << NOINK) { m.castShadow = true; m.receiveShadow = true; } });
   return null;
 };
+
+/** fast cutting (short attention): several camera setups per shot, each one cut in at a frame (usually a word),
+ *  each gliding from `from` to `to` until the next cut */
+export type Cut = { at: number; from: V3; to: V3; look: V3; lookTo?: V3; fov?: number };
+export const Cuts: React.FC<{ f: number; end: number; cuts: Cut[] }> = ({ f, end, cuts }) => {
+  let i = 0;
+  for (let k = 0; k < cuts.length; k++) if (f >= cuts[k].at) i = k;
+  const c = cuts[i], next = i + 1 < cuts.length ? cuts[i + 1].at : end;
+  return <Cam f={f} t={(f - c.at) / Math.max(1, next - c.at)} from={c.from} to={c.to} look={c.look} lookTo={c.lookTo} fov={c.fov ?? 48} />;
+};

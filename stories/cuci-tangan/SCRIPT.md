@@ -1,4 +1,4 @@
-# "Dokter yang Diejek karena Cuci Tangan" — script v1 (2026-11-26)
+# "Dokter yang Diejek karena Cuci Tangan" — script v2 (2026-11-26): kalimat disambung (Lalu / Di situ / Sedangkan / Jadi / Tapi malah), kamera 2-3 potongan per kalimat
 Bahasa: Indonesia
 World: pbr (look realistis: IBL + bayangan lembut + AO + color grade film, tanpa outline tinta di dunia 3D)
 Format: Formula B "diejek, ternyata benar" (references/STORYTELLING.md), ~65 s. Istilah sains tidak disebut
@@ -10,16 +10,16 @@ Fakta: lihat `sources.md`.
 Tahun 1847, seorang dokter menyuruh semua rekannya merendam tangan di air kaporit, dan mereka marah besar.
 Di rumah sakitnya di Wina, ada dua ruang bersalin.
 Di ruang dokter, satu dari sepuluh ibu meninggal karena demam.
-Di ruang bidan, jauh lebih sedikit, sampai ada ibu yang memilih melahirkan di jalan.
-Lalu temannya tergores pisau saat membedah mayat, dan meninggal dengan demam yang sama.
-Dokter itu sadar: para dokter membedah mayat, lalu langsung membantu persalinan tanpa cuci tangan.
-Bidan tidak pernah menyentuh mayat.
-Setelah cuci tangan diwajibkan, kematian anjlok jadi sekitar satu dari seratus.
-Tapi para dokter tersinggung.
-Ada yang menulis: dokter itu orang terhormat, dan tangan orang terhormat selalu bersih.
-Dokter itu, Ignaz Semmelweis, kontraknya tidak diperpanjang dan dia pergi dari Wina.
-Bertahun-tahun kemudian, terbukti ada makhluk super kecil di tangan yang bisa membunuh.
-Semmelweis tidak sempat melihat dirinya diakui: dia meninggal karena luka yang infeksi.
+Di ruang bidan, jauh lebih sedikit, sampai ada ibu yang lebih memilih melahirkan di jalan.
+Lalu sahabatnya tergores pisau saat membedah mayat, dan meninggal karena demam yang sama.
+Di situ dia sadar: dokter habis membedah mayat, langsung membantu persalinan, tanpa cuci tangan.
+Sedangkan bidan, tidak pernah menyentuh mayat.
+Jadi dia mewajibkan cuci tangan, dan kematian langsung anjlok jadi sekitar satu dari seratus.
+Tapi para dokter malah tersinggung.
+Ada dokter terkenal yang bilang: dokter itu orang terhormat, tangannya pasti bersih.
+Dokter itu, Ignaz Semmelweis, akhirnya tidak dipakai lagi, dan pergi dari Wina.
+Bertahun-tahun kemudian, barulah terbukti ada makhluk super kecil di tangan yang bisa membunuh.
+Sayangnya, Semmelweis tidak sempat melihatnya: dia meninggal karena luka yang infeksi.
 Sekarang, cuci tangan jadi pelajaran pertama setiap dokter di dunia.
 ```
 
