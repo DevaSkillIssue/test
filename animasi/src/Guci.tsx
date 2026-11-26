@@ -3,6 +3,7 @@ import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
 import { SHOTS, B, ramp, clamp01 } from "./story";
+import { Treasury } from "./Treasury";
 import { Card, Box, Jar, Mosquito, Paper, Light, Cam, Toon, V3, CARTER, CARTER_OLD, CARN, REPORTER, DOCTOR, OLDMAN, CROWD } from "./kit";
 
 type SP = { f: number; t: number };
@@ -52,19 +53,8 @@ const S: React.FC<SP>[] = [
       <Cam f={f} t={t} from={[-2.5, 3.2, 5.5]} to={[-0.3, 1.5, 4]} look={[0.2, 1, -0.6]} />
     </>);
   },
-  // 3 the four jars in the calcite chest; Carter lifts a lid, recoils on "organ"
-  ({ f, t }) => {
-    const lid = ramp(f, B(3, "guci"), 12), yuck = ramp(f, B(3, "organ"), 6);
-    return (<>
-      <Light bg="#4a2a12" sky="#ffb060" sun="#ffcc80" ground="#2a160a" k={0.9} dir={[-2, 5, 3]} fog={[4, 12]} />
-      <mesh rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[20, 20]} /><Toon c="#6b4420" /></mesh>
-      <Box p={[0, 1.5, -2]} s={[8, 3, 0.2]} c="#8a5a2a" />
-      <Box p={[0.3, 0.35, 0]} s={[1.5, 0.7, 0.9]} c="#efe9dc" />
-      {[-0.25, 0.15, 0.55, 0.95].map((x, i) => <Jar key={i} p={[x - 0.1, 0.7, 0]} s={0.55} lidUp={i === 0 ? lid * 0.35 : 0} />)}
-      <Card o={CARTER} f={f} pos={[-0.7 - yuck * 0.12, 0, 0.45]} seed={2} opts={{ arm: "reach", armK: lid, expr: yuck > 0.5 ? "disgust" : "awe", lean: -10 * yuck }} />
-      <Cam f={f} t={t} from={[0, 1.7, 5.2]} to={[0, 1.3, 3.8]} look={[0, 0.9, 0]} fov={45} />
-    </>);
-  },
+  // 3 hero: the Treasury (Treasury.tsx)
+  ({ f, t }) => <Treasury f={f} t={t} />,
   // 4 Carnarvon shaving in Cairo; the razor nicks the bite on "menggores", the mosquito flies off
   ({ f, t }) => {
     const nick = ramp(f, B(4, "menggores"), 4), fly = ramp(f, B(4, "nyamuk"), 24);
@@ -200,7 +190,7 @@ const ShotView: React.FC<{ i: number; from: number; dur: number }> = ({ i, from,
   const lf = useCurrentFrame(), { width, height } = useVideoConfig();
   const Scene = S[i];
   return (
-    <ThreeCanvas width={width} height={height} gl={{ antialias: true }}>
+    <ThreeCanvas width={width} height={height} gl={{ antialias: true }} shadows>
       <Scene f={from + lf} t={lf / Math.max(1, dur - 1)} />
     </ThreeCanvas>
   );

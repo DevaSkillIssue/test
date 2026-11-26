@@ -18,6 +18,7 @@ export const OLDMAN = (v: number): Outfit => ({ ...townsfolk(v), moustache: "#e8
 export const CROWD = (v: number): Outfit => townsfolk(v);
 
 // ---------------- character card ----------------
+const NOINK_L = (() => { const l = new THREE.Layers(); l.set(3); return l; })(); // = NOINK in ink.ts
 const CW = 360, CH = 600; // canvas px (design space 600 x 1000)
 type CardP = { o: Outfit; f: number; pos: V3; h?: number; seed?: number; rotZ?: number; opts?: FrontOpts; flipX?: boolean };
 /** a flat 2D character standing in the 3D world; idles (breath + blink) on every frame, so nobody is ever frozen */
@@ -35,12 +36,12 @@ export const Card: React.FC<CardP> = ({ o, f, pos, h = 1.8, seed = 1, rotZ = 0, 
   const breath = 1 + 0.012 * Math.sin(f * 0.13 + seed);
   return (
     <group position={pos} rotation={[0, 0, rotZ]}>
-      <mesh position={[0, (h * breath) / 2 - h * 0.025, 0]} scale={[flipX ? -1 : 1, breath, 1]}>
+      <mesh layers={NOINK_L} position={[0, (h * breath) / 2 - h * 0.025, 0]} scale={[flipX ? -1 : 1, breath, 1]}>
         <planeGeometry args={[h * 0.6, h]} />
         <meshBasicMaterial map={tex} transparent alphaTest={0.4} side={THREE.DoubleSide} toneMapped={false} />
       </mesh>
       {/* contact shadow */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]} scale={[1, 0.45, 1]}>
+      <mesh layers={NOINK_L} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} scale={[1, 0.45, 1]}>
         <circleGeometry args={[h * 0.18, 24]} />
         <meshBasicMaterial color="#000" transparent opacity={0.25} />
       </mesh>
@@ -55,10 +56,10 @@ export const Box: React.FC<{ p: V3; s: V3; c: string; r?: V3; e?: string; ei?: n
   <mesh position={p} rotation={r}><boxGeometry args={s} /><Toon c={c} e={e} ei={ei} /></mesh>
 );
 /** canopic jar: white calcite body, a gold king's head lid with a striped headdress */
-export const Jar: React.FC<{ p: V3; s?: number; lidUp?: number }> = ({ p, s = 1, lidUp = 0 }) => (
+export const Jar: React.FC<{ p: V3; s?: number; lidUp?: number; lidX?: number }> = ({ p, s = 1, lidUp = 0, lidX = 0 }) => (
   <group position={p} scale={s}>
     <mesh position={[0, 0.25, 0]}><cylinderGeometry args={[0.16, 0.12, 0.5, 20]} /><Toon c="#f1ece0" /></mesh>
-    <group position={[0, 0.58 + lidUp, 0]}>
+    <group position={[lidX, 0.58 + lidUp, 0]} rotation={[0, 0, lidX * 0.6]}>
       <mesh><cylinderGeometry args={[0.2, 0.17, 0.2, 20]} /><Toon c="#2f5aa8" /></mesh>
       <mesh position={[0, 0.04, 0]}><cylinderGeometry args={[0.21, 0.21, 0.04, 20]} /><Toon c="#e0b84a" /></mesh>
       <mesh position={[0, 0.16, 0]}><sphereGeometry args={[0.13, 20, 16]} /><Toon c="#e7c78f" /></mesh>
@@ -118,5 +119,43 @@ export const Cam: React.FC<{ t: number; from: V3; to: V3; look: V3; lookTo?: V3;
     cam.fov = fov; cam.near = 0.01; cam.far = 200; cam.updateProjectionMatrix();
     cam.lookAt(...l);
   });
+  return null;
+};
+
+// ---------------- post: ink -> lens (pre, main) -> bloom -> NEUTRAL tone -> grade (bible/modes/painted.md) ----------------
+import { EffectComposer } from "@react-three/postprocessing";
+import { BlendFunction, BloomEffect, ToneMappingEffect, ToneMappingMode } from "postprocessing";
+import { InkPass, NOINK, noInkFallback } from "./ink";
+import { LensBlur } from "./lensblur";
+import { GradeEffect, GRADES, LightName } from "./grade";
+export { NOINK };
+const makeBloom = () => {
+  const b = new BloomEffect({ blendFunction: BlendFunction.ADD, intensity: 0.5, luminanceThreshold: 1.0, luminanceSmoothing: 0.2, mipmapBlur: true, levels: 6, radius: 0.6 });
+  const mip = b.mipmapBlurPass, setSize = mip.setSize.bind(mip);
+  mip.setSize = (w: number, h: number) => setSize(Math.round((1920 * w) / Math.max(h, 1)), 1920);
+  return b;
+};
+/** the painted look: world ink, thin-lens blur focused on `focus`, bloom on emissive > 1, neutral tone map, grade */
+export const Post: React.FC<{ light: LightName; cInf: number; focus: V3; grade?: number }> = ({ light, cInf, focus, grade = 1 }) => {
+  const { scene, camera } = useThree();
+  const fx = useMemo(() => ({
+    ink: new InkPass(scene, camera as THREE.PerspectiveCamera), lens: new LensBlur({ maxCoC: 24, nearScale: 1.2 }),
+    bloom: makeBloom(), tone: new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }), grade: new GradeEffect(GRADES[light], grade),
+  }), [scene, camera]); // eslint-disable-line react-hooks/exhaustive-deps
+  noInkFallback(scene);
+  const cam = camera as THREE.PerspectiveCamera, fwd = new THREE.Vector3();
+  cam.getWorldDirection(fwd);
+  fx.lens.focus = Math.max(0.3, new THREE.Vector3(...focus).sub(cam.position).dot(fwd));
+  fx.lens.cInf = cInf;
+  return (
+    <EffectComposer multisampling={4}>
+      {[fx.ink, fx.lens.pre, fx.lens.main, fx.bloom, fx.tone, fx.grade].map((o, i) => <primitive key={i} object={o} dispose={null} />)}
+    </EffectComposer>
+  );
+};
+/** every world mesh casts and receives shadows; cards (NOINK) do not */
+export const Shadows: React.FC = () => {
+  const { scene } = useThree();
+  scene.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && o.layers.mask !== 1 << NOINK) { m.castShadow = true; m.receiveShadow = true; } });
   return null;
 };
