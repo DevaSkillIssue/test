@@ -1,0 +1,6 @@
+# Python stages (3.10+). FFmpeg, Node 20+, and (for the local placeholder voice) espeak-ng are system tools.
+anthropic>=0.60        # Stage A: story generation with Claude (structured outputs)
+jsonschema>=4.20       # story.json validation
+requests>=2.31         # Stage B: ElevenLabs API
+numpy>=1.26            # SFX synthesis, audio decoding for whisper
+faster-whisper>=1.1    # Stage C: word-level timestamps

@@ -1,0 +1,20 @@
+{
+  "name": "caesar-animation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automated 2.5D stickman animation pipeline: story JSON -> Three.js/WebGL frames -> FFmpeg MP4",
+  "type": "module",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "plan": "node scripts/plan.mjs",
+    "render": "node scripts/render.mjs",
+    "test": "node --test tests/js/*.test.mjs",
+    "test:render": "node tests/render_test.mjs"
+  },
+  "dependencies": {
+    "three": "0.187.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

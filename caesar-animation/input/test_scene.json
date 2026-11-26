@@ -1,0 +1,55 @@
+{
+  "title": "Render Test",
+  "hook": "Two short scenes that exercise walking, jumping, falling and camera moves.",
+  "seed": 7,
+  "cast": [
+    { "id": "max", "name": "Max", "template": "sleepy" },
+    { "id": "sam", "name": "Sam", "template": "buddy" }
+  ],
+  "scenes": [
+    {
+      "scene_id": "t1_street",
+      "duration": 3.5,
+      "narration": "Max walks down the street and jumps for joy.",
+      "visual_description": "Max walks left to right past Sam, then jumps.",
+      "characters": [
+        { "id": "max", "position": [-1.8, 0, 0], "facing": "right" },
+        { "id": "sam", "position": [1.6, 0, -0.6], "facing": "left", "expression": "happy" }
+      ],
+      "environment": "street",
+      "props": [{ "type": "bus", "position": [3, 0, -4.5], "motion": { "time": 1.0, "duration": 2.5, "to": [12, 0, -4.5], "ease": "easeInQuad" } }],
+      "actions": [
+        { "time": 0.2, "character": "max", "action": "walk", "duration": 1.6, "target": [0.2, 0, 0.3] },
+        { "time": 2.0, "character": "max", "action": "jump", "duration": 1.0, "at_word": "jumps" },
+        { "time": 0.5, "character": "sam", "action": "wave", "duration": 2.0 }
+      ],
+      "camera": {
+        "shot": "full", "target": "max", "move": "track",
+        "cuts": [{ "time": 2.0, "shot": "medium", "target": "max", "move": "dolly_in", "angle": "low", "blend": 0.4 }]
+      },
+      "lighting": "day",
+      "sound_effects": [{ "cue": "whoosh", "time": 1.0 }],
+      "transition": "whip"
+    },
+    {
+      "scene_id": "t2_office",
+      "duration": 3.0,
+      "narration": "Then he trips over nothing.",
+      "visual_description": "Max runs and falls flat in the office.",
+      "characters": [{ "id": "max", "position": [-1.5, 0, 0.2], "facing": "right" }],
+      "environment": "office",
+      "props": [],
+      "actions": [
+        { "time": 0.1, "character": "max", "action": "run", "duration": 1.0, "target": [0.6, 0, 0.2] },
+        { "time": 1.1, "character": "max", "action": "fall", "duration": 1.1, "target": [1.3, 0, 0.2] }
+      ],
+      "camera": {
+        "shot": "wide", "target": "max", "move": "track", "angle": "front",
+        "shake": [{ "time": 1.9, "duration": 0.5, "intensity": 1.0 }]
+      },
+      "lighting": "indoor_cool",
+      "sound_effects": [{ "cue": "thud", "time": 1.9 }],
+      "transition": "fade"
+    }
+  ]
+}

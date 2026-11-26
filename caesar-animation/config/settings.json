@@ -1,0 +1,45 @@
+{
+  "video": { "width": 1080, "height": 1920, "fps": 30 },
+  "preview": { "width": 540, "height": 960, "fps": 30 },
+  "render": {
+    "frame_format": "jpeg",
+    "jpeg_quality": 0.94,
+    "workers": 2,
+    "retries": 3,
+    "shadows": true,
+    "shadow_map_size": 2048,
+    "character_texture_size": 768,
+    "handheld": 0.012
+  },
+  "audio": {
+    "tts_provider": "auto",
+    "elevenlabs": {
+      "voice_id": "",
+      "model_id": "eleven_multilingual_v2",
+      "output_format": "mp3_44100_128",
+      "stability": 0.45,
+      "similarity_boost": 0.8,
+      "style": 0.25,
+      "max_retries": 4
+    },
+    "local_tts": { "voice": "en-us", "speed": 165, "pitch": 45 },
+    "scene_lead_in": 0.25,
+    "scene_tail": 0.35,
+    "voice_volume": 1.0,
+    "sfx_volume": 0.8,
+    "music_volume": 0.18,
+    "auto_action_sfx": true
+  },
+  "whisper": { "model": "base.en", "device": "cpu", "compute_type": "int8", "language": "en" },
+  "captions": {
+    "style": "bold_pop",
+    "max_words": 3,
+    "max_gap": 0.6,
+    "uppercase": true,
+    "font": "Inter",
+    "font_size": 84,
+    "margin_v": 500,
+    "margin_h": 90
+  },
+  "story": { "model": "claude-opus-5-5", "effort": "high", "target_seconds": 40, "max_tokens": 32000 }
+}

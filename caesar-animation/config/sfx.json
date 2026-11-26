@@ -1,0 +1,169 @@
+{
+  "_doc": "Sound-effect library. Cue names are referenced by story.json sound_effects[].cue. Replace a file with a licensed asset (e.g. Mixkit / Pixabay) and update source/license; python/sfx.py only synthesizes files that are missing and marked procedural.",
+  "action_cues": {
+    "jump": [
+      {
+        "cue": "boing",
+        "at": 0.3
+      }
+    ],
+    "fall": [
+      {
+        "cue": "thud",
+        "at": 0.72
+      }
+    ],
+    "run": [
+      {
+        "cue": "whoosh",
+        "at": 0.0
+      }
+    ],
+    "shock": [
+      {
+        "cue": "pop",
+        "at": 0.0
+      }
+    ]
+  },
+  "transition_cues": {
+    "whip": "swoosh",
+    "zoom": "whoosh",
+    "flash": "pop"
+  },
+  "cues": {
+    "whoosh": {
+      "file": "input/assets/sfx/movement/whoosh.wav",
+      "category": "movement",
+      "volume": 0.8,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "swoosh": {
+      "file": "input/assets/sfx/movement/swoosh.wav",
+      "category": "movement",
+      "volume": 0.7,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "zip": {
+      "file": "input/assets/sfx/movement/zip.wav",
+      "category": "movement",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "thud": {
+      "file": "input/assets/sfx/impact/thud.wav",
+      "category": "impact",
+      "volume": 1.0,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "punch": {
+      "file": "input/assets/sfx/impact/punch.wav",
+      "category": "impact",
+      "volume": 0.9,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "crash": {
+      "file": "input/assets/sfx/impact/crash.wav",
+      "category": "impact",
+      "volume": 0.9,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "pop": {
+      "file": "input/assets/sfx/ui/pop.wav",
+      "category": "ui",
+      "volume": 0.7,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "ding": {
+      "file": "input/assets/sfx/ui/ding.wav",
+      "category": "ui",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "click": {
+      "file": "input/assets/sfx/ui/click.wav",
+      "category": "ui",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "notification": {
+      "file": "input/assets/sfx/ui/notification.wav",
+      "category": "ui",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "boing": {
+      "file": "input/assets/sfx/cartoon/boing.wav",
+      "category": "cartoon",
+      "volume": 0.7,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "slide_whistle_down": {
+      "file": "input/assets/sfx/cartoon/slide_whistle_down.wav",
+      "category": "cartoon",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "slide_whistle_up": {
+      "file": "input/assets/sfx/cartoon/slide_whistle_up.wav",
+      "category": "cartoon",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "record_scratch": {
+      "file": "input/assets/sfx/cartoon/record_scratch.wav",
+      "category": "cartoon",
+      "volume": 0.8,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "alarm_clock": {
+      "file": "input/assets/sfx/alerts/alarm_clock.wav",
+      "category": "alerts",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "phone_buzz": {
+      "file": "input/assets/sfx/alerts/phone_buzz.wav",
+      "category": "alerts",
+      "volume": 0.7,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "car_horn": {
+      "file": "input/assets/sfx/alerts/car_horn.wav",
+      "category": "alerts",
+      "volume": 0.7,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "city_ambience": {
+      "file": "input/assets/sfx/ambience/city_ambience.wav",
+      "category": "ambience",
+      "volume": 0.35,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    },
+    "bus_engine": {
+      "file": "input/assets/sfx/ambience/bus_engine.wav",
+      "category": "ambience",
+      "volume": 0.6,
+      "source": "procedural",
+      "license": "Synthesized by python/sfx.py - no third-party rights"
+    }
+  }
+}

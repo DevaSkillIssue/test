@@ -1,0 +1,11 @@
+{
+  "_doc": "Reusable stickman templates. color = body line colour, head_fill = face colour, accessory = none|nightcap|cap|tophat|spiky_hair|bow|glasses|tie, accent = accessory colour, scale = relative height (1 = 1.8 m).",
+  "hero":     { "color": "#1c1c1c", "head_fill": "#ffffff", "accessory": "none",       "accent": "#1c1c1c", "scale": 1.0 },
+  "sleepy":   { "color": "#2b4fa8", "head_fill": "#ffffff", "accessory": "nightcap",   "accent": "#4f7be0", "scale": 1.0 },
+  "buddy":    { "color": "#1f7a4d", "head_fill": "#ffffff", "accessory": "cap",        "accent": "#e8833a", "scale": 1.0 },
+  "boss":     { "color": "#1c1c1c", "head_fill": "#ffffff", "accessory": "tie",        "accent": "#c62828", "scale": 1.06 },
+  "villain":  { "color": "#5b1f86", "head_fill": "#f1e9ff", "accessory": "tophat",     "accent": "#c62828", "scale": 1.04 },
+  "kid":      { "color": "#d9502f", "head_fill": "#ffffff", "accessory": "spiky_hair", "accent": "#d9502f", "scale": 0.72 },
+  "friend":   { "color": "#c2185b", "head_fill": "#ffffff", "accessory": "bow",        "accent": "#ff5c93", "scale": 0.96 },
+  "nerd":     { "color": "#37474f", "head_fill": "#ffffff", "accessory": "glasses",    "accent": "#111111", "scale": 0.98 }
+}

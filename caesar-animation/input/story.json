@@ -1,0 +1,239 @@
+{
+  "title": "He Tried To Be Productive For One Day",
+  "hook": "This man promised himself one perfectly productive day.",
+  "logline": "A sleepy guy's perfect productive day collapses in eleven minutes, ending with a pajama reveal at the office.",
+  "seed": 42,
+  "cast": [
+    { "id": "max", "name": "Max", "template": "sleepy" },
+    { "id": "boss", "name": "The Boss", "template": "boss" },
+    { "id": "dave", "name": "Dave", "template": "buddy" }
+  ],
+  "scenes": [
+    {
+      "scene_id": "s1_alarm",
+      "duration": 5.5,
+      "narration": "This man promised himself one perfectly productive day. It lasted eleven minutes.",
+      "visual_description": "Max sleeps tucked into bed. The alarm rings, he springs up in shock, leaps off the bed and celebrates; on 'lasted' we cut close as he shrugs.",
+      "characters": [{ "id": "max", "position": [-1.0, 0.5, -0.9], "facing": "right", "expression": "sleepy", "action": "sleep" }],
+      "environment": "bedroom",
+      "props": [
+        { "type": "bed", "position": [-1.2, 0, -1.2] },
+        { "type": "box", "position": [0.45, 0, -1.7] },
+        { "type": "alarm_clock", "position": [0.45, 0.5, -1.7] },
+        { "type": "desk", "position": [2.7, 0, -2.4] },
+        { "type": "laptop", "position": [2.5, 0.76, -2.45] },
+        { "type": "lamp", "position": [-3.4, 0, -2.5] }
+      ],
+      "actions": [
+        { "time": 0.45, "character": "max", "action": "shock", "duration": 0.9 },
+        { "time": 1.4, "character": "max", "action": "jump", "duration": 0.9, "target": [0.6, 0, 0.2] },
+        { "time": 2.4, "character": "max", "action": "celebrate", "duration": 1.4, "at_word": "perfectly", "expression": "happy" },
+        { "time": 4.2, "character": "max", "action": "shrug", "duration": 1.2, "at_word": "lasted", "expression": "smug" }
+      ],
+      "camera": {
+        "shot": "medium", "target": "max", "move": "push_in", "angle": "front",
+        "cuts": [
+          { "time": 1.4, "shot": "full", "target": "max", "move": "track", "blend": 0.5 },
+          { "time": 4.1, "at_word": "lasted", "shot": "close", "target": "max", "move": "static" }
+        ]
+      },
+      "lighting": "indoor_warm",
+      "sound_effects": [
+        { "cue": "alarm_clock", "time": 0.0, "volume": 0.8 },
+        { "cue": "slide_whistle_down", "time": 4.6, "at_word": "eleven", "volume": 0.7 }
+      ],
+      "transition": "cut"
+    },
+    {
+      "scene_id": "s2_phone",
+      "duration": 5.0,
+      "narration": "Step one: check his phone. Just for one second.",
+      "visual_description": "Max stands in the middle of the bedroom staring at his phone; the camera creeps in as he gets hooked.",
+      "characters": [{ "id": "max", "position": [0.6, 0, 0.2], "facing": "right", "expression": "neutral" }],
+      "environment": "bedroom",
+      "props": [
+        { "type": "bed", "position": [-1.2, 0, -1.2] },
+        { "type": "box", "position": [0.45, 0, -1.7] },
+        { "type": "alarm_clock", "position": [0.45, 0.5, -1.7] },
+        { "type": "desk", "position": [2.7, 0, -2.4] },
+        { "type": "lamp", "position": [-3.4, 0, -2.5] }
+      ],
+      "actions": [
+        { "time": 0.3, "character": "max", "action": "use_phone", "duration": 2.0 },
+        { "time": 2.3, "character": "max", "action": "use_phone", "duration": 2.7, "at_word": "second", "expression": "happy" }
+      ],
+      "camera": {
+        "shot": "medium", "target": "max", "move": "dolly_in", "angle": "right",
+        "cuts": [{ "time": 2.2, "at_word": "Just", "shot": "close", "target": "max", "move": "push_in", "angle": "front" }]
+      },
+      "lighting": "indoor_warm",
+      "sound_effects": [
+        { "cue": "notification", "time": 0.3, "volume": 0.6 },
+        { "cue": "phone_buzz", "time": 3.2, "at_word": "second", "volume": 0.5 }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "s3_time_skip",
+      "duration": 4.5,
+      "narration": "Three hours later, he finally looked up.",
+      "visual_description": "Same spot at sunset, Max still glued to the phone like a zombie. On 'looked' he snaps out of it in shock; smash zoom.",
+      "characters": [{ "id": "max", "position": [0.6, 0, 0.2], "facing": "right", "expression": "sleepy", "action": "use_phone" }],
+      "environment": "bedroom",
+      "props": [
+        { "type": "bed", "position": [-1.2, 0, -1.2] },
+        { "type": "box", "position": [0.45, 0, -1.7] },
+        { "type": "alarm_clock", "position": [0.45, 0.5, -1.7] },
+        { "type": "desk", "position": [2.7, 0, -2.4] },
+        { "type": "lamp", "position": [-3.4, 0, -2.5] }
+      ],
+      "actions": [
+        { "time": 2.6, "character": "max", "action": "shock", "duration": 1.6, "at_word": "looked", "expression": "surprised" }
+      ],
+      "camera": {
+        "shot": "wide", "target": "max", "move": "push_in", "angle": "high",
+        "cuts": [{ "time": 2.6, "at_word": "looked", "shot": "extreme_close", "target": "max", "move": "zoom_in", "angle": "front" }],
+        "shake": [{ "time": 2.6, "at_word": "looked", "duration": 0.5, "intensity": 0.9 }]
+      },
+      "lighting": "sunset",
+      "sound_effects": [{ "cue": "pop", "time": 2.6, "at_word": "looked", "volume": 0.9 }],
+      "transition": "whip"
+    },
+    {
+      "scene_id": "s4_sprint",
+      "duration": 6.0,
+      "narration": "He sprinted for the bus like his entire career depended on it.",
+      "visual_description": "Max sprints down the sidewalk in his pajamas and nightcap, the bus idling ahead; a heroic low angle on 'career'.",
+      "characters": [
+        { "id": "max", "position": [-5.0, 0, 0.4], "facing": "right", "expression": "angry" },
+        { "id": "dave", "position": [3.2, 0, -0.5], "facing": "left", "expression": "neutral" }
+      ],
+      "environment": "street",
+      "props": [
+        { "type": "bus", "position": [7.5, 0, -4.4] },
+        { "type": "bus_stop", "position": [3.6, 0, -1.0] }
+      ],
+      "actions": [
+        { "time": 0.2, "character": "max", "action": "run", "duration": 5.6, "target": [1.0, 0, 0.4], "expression": "angry" },
+        { "time": 3.0, "character": "dave", "action": "look_around", "duration": 2.5 }
+      ],
+      "camera": {
+        "shot": "full", "target": "max", "move": "track", "angle": "left",
+        "cuts": [{ "time": 3.0, "at_word": "career", "shot": "medium", "target": "max", "move": "track", "angle": "low", "blend": 0.6 }]
+      },
+      "lighting": "day",
+      "sound_effects": [
+        { "cue": "city_ambience", "time": 0.0, "volume": 0.5 },
+        { "cue": "bus_engine", "time": 1.0, "volume": 0.4 }
+      ],
+      "transition": "cut"
+    },
+    {
+      "scene_id": "s5_trip",
+      "duration": 6.0,
+      "narration": "He was so close. Then the sidewalk had other plans.",
+      "visual_description": "Max trips over nothing and faceplants; Dave bursts out laughing while the bus drives away behind them.",
+      "characters": [
+        { "id": "max", "position": [-1.6, 0, 0.4], "facing": "right", "expression": "angry" },
+        { "id": "dave", "position": [3.2, 0, -0.5], "facing": "left", "expression": "neutral" }
+      ],
+      "environment": "street",
+      "props": [
+        { "type": "bus", "position": [7.5, 0, -4.4], "motion": { "time": 3.8, "at_word": "plans", "duration": 2.6, "to": [28, 0, -4.4], "ease": "easeInQuad" } },
+        { "type": "bus_stop", "position": [3.6, 0, -1.0] }
+      ],
+      "actions": [
+        { "time": 0.0, "character": "max", "action": "run", "duration": 2.4, "target": [1.0, 0, 0.4] },
+        { "time": 1.7, "character": "max", "action": "fall", "duration": 1.2, "at_word": "Then", "target": [1.9, 0, 0.4] },
+        { "time": 3.8, "character": "dave", "action": "laugh", "duration": 2.2, "at_word": "plans" }
+      ],
+      "camera": {
+        "shot": "full", "target": "max", "move": "track", "angle": "front",
+        "cuts": [
+          { "time": 1.7, "at_word": "Then", "shot": "full", "target": "max", "move": "track", "angle": "low" },
+          { "time": 3.8, "at_word": "plans", "shot": "wide", "target": "group", "move": "static", "angle": "front" }
+        ]
+      },
+      "lighting": "day",
+      "sound_effects": [
+        { "cue": "slide_whistle_down", "time": 1.7, "at_word": "Then", "volume": 0.6 },
+        { "cue": "bus_engine", "time": 3.8, "at_word": "plans", "volume": 0.6 }
+      ],
+      "transition": "zoom"
+    },
+    {
+      "scene_id": "s6_office",
+      "duration": 6.0,
+      "narration": "At the office, his boss was waiting with one simple question.",
+      "visual_description": "Max shuffles into the office looking sad; the boss stands arms crossed, filmed from a low intimidating angle.",
+      "characters": [
+        { "id": "max", "position": [-4.2, 0, 0.5], "facing": "right", "expression": "sad" },
+        { "id": "boss", "position": [1.2, 0, -0.2], "facing": "left", "expression": "angry", "action": "arms_crossed" }
+      ],
+      "environment": "office",
+      "props": [{ "type": "coffee_cup", "position": [3.4, 0.76, -1.8] }],
+      "actions": [
+        { "time": 0.3, "character": "max", "action": "walk", "duration": 2.6, "target": [-0.9, 0, 0.5], "expression": "sad" }
+      ],
+      "camera": {
+        "shot": "wide", "target": "max", "move": "track", "angle": "front",
+        "cuts": [
+          { "time": 2.3, "at_word": "boss", "shot": "medium", "target": "boss", "move": "push_in", "angle": "low" },
+          { "time": 4.6, "at_word": "question", "shot": "close", "target": "max", "move": "static", "angle": "front" }
+        ]
+      },
+      "lighting": "indoor_cool",
+      "sound_effects": [{ "cue": "ding", "time": 4.6, "at_word": "question", "volume": 0.6 }],
+      "transition": "cut"
+    },
+    {
+      "scene_id": "s7_pajamas",
+      "duration": 5.5,
+      "narration": "Max... why are you still wearing pajamas?",
+      "visual_description": "The boss asks; Max looks down at his pajamas and nightcap, freezes in horror, then facepalms.",
+      "characters": [
+        { "id": "max", "position": [-0.9, 0, 0.5], "facing": "right", "expression": "sad" },
+        { "id": "boss", "position": [1.2, 0, -0.2], "facing": "left", "expression": "angry", "action": "arms_crossed" }
+      ],
+      "environment": "office",
+      "props": [{ "type": "coffee_cup", "position": [3.4, 0.76, -1.8] }],
+      "actions": [
+        { "time": 0.1, "character": "boss", "action": "talk", "duration": 2.6, "expression": "angry" },
+        { "time": 2.0, "character": "max", "action": "look_down", "duration": 0.8, "at_word": "wearing", "expression": "neutral" },
+        { "time": 2.6, "character": "max", "action": "shock", "duration": 1.2, "at_word": "pajamas", "expression": "surprised" },
+        { "time": 4.0, "character": "max", "action": "facepalm", "duration": 1.4 }
+      ],
+      "camera": {
+        "shot": "medium", "target": "boss", "move": "push_in", "angle": "low",
+        "cuts": [
+          { "time": 2.0, "at_word": "wearing", "shot": "full", "target": "max", "move": "static", "angle": "front" },
+          { "time": 2.6, "at_word": "pajamas", "shot": "close", "target": "max", "move": "zoom_in", "angle": "front" }
+        ],
+        "shake": [{ "time": 2.6, "at_word": "pajamas", "duration": 0.5, "intensity": 0.8 }]
+      },
+      "lighting": "indoor_cool",
+      "sound_effects": [{ "cue": "record_scratch", "time": 2.6, "at_word": "pajamas", "volume": 0.9 }],
+      "transition": "flash"
+    },
+    {
+      "scene_id": "s8_tomorrow",
+      "duration": 5.0,
+      "narration": "Tomorrow, he says, will be the productive day. Follow for part two.",
+      "visual_description": "Sunset park. Max sits on a bench, stands up full of hope and waves goodbye to the viewer as the camera cranes up.",
+      "characters": [{ "id": "max", "position": [3.6, 0, -1.0], "facing": "right", "expression": "smug", "action": "sit" }],
+      "environment": "outdoor",
+      "props": [],
+      "actions": [
+        { "time": 2.2, "character": "max", "action": "stand_up", "duration": 0.8, "at_word": "productive", "expression": "happy" },
+        { "time": 3.2, "character": "max", "action": "wave", "duration": 1.8, "at_word": "Follow" }
+      ],
+      "camera": {
+        "shot": "medium", "target": "max", "move": "dolly_out", "angle": "front",
+        "cuts": [{ "time": 3.2, "at_word": "Follow", "shot": "full", "target": "max", "move": "crane_up", "blend": 0.6 }]
+      },
+      "lighting": "sunset",
+      "sound_effects": [{ "cue": "pop", "time": 3.2, "at_word": "Follow", "volume": 0.7 }],
+      "transition": "fade"
+    }
+  ]
+}
