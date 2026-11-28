@@ -568,33 +568,3 @@ def stroll_step(r, scuff=0.5):
     tap = bp(nz, 700, 4000, 1) * np.exp(-t / 0.005) * 0.4
     sc = bp(nz, 400, 3000, 1) * np.clip(t / 0.02, 0, 1) * np.exp(-t / 0.07) * 0.25 * scuff
     return (heel * 0.7 + plank + tap + sc)
-
-
-# ================================================================ a locked door being yanked (rail tugAt / pullFx)
-def door_yank(r, a=1.0):
-    """one yank on a locked door (put it on each tugAt() yank frame): the bolt clacks hard in its keeper, the door slab
-    thumps in its frame, the knob's loose fittings rattle after. a = 0..1 strength (the last yank hardest)"""
-    d = 0.55
-    t = tt(d)
-    nz = r.standard_normal(len(t))
-    clack = modal(d, [(r.uniform(820, 1000), 1.0, 0.02), (r.uniform(1900, 2300), 0.6, 0.012), (r.uniform(3300, 3900), 0.35, 0.007)], r)
-    clack += hp(nz, 2500) * np.exp(-t / 0.0015) * 0.5
-    slab = modal(d, [(r.uniform(85, 110), 1.0, 0.07), (r.uniform(190, 240), 0.7, 0.05), (r.uniform(420, 520), 0.4, 0.03)], r, glide=0.02)
-    thud = lp(nz, 260, 2) * np.exp(-t / 0.03) * 1.2
-    y = clack * 0.8 + slab * 1.1 + thud
-    jing = rattle(0.32, r, 40, np.exp(-np.linspace(0, 1, ns(0.32)) * 4), heavy=True) * 0.35
-    _place_mono(y, jing, 0.015)
-    return fades(y * (0.55 + 0.45 * a), 0.0, 0.08)
-
-
-def effort(r, dur=0.42, base=None, a=1.0):
-    """a strained, closed-throat 'nnngh!' on a yank: pitch pushes up and trembles, lots of breath, cut off hard.
-    Start it ~2 frames before the yank so the push lands with the clack"""
-    base = base or r.uniform(110, 150)
-    n = ns(dur)
-    t = np.arange(n) / SR
-    f0 = base * _track(n, [(0, 1.0), (0.06, 1.25), (dur, 1.35)], t) * (1 + 0.04 * np.sin(TAU * 11 * t))
-    forms = vowel_track(n, [(0, "U"), (0.05, "er"), (dur, "er")])
-    amp = np.clip(t / 0.02, 0, 1) * np.clip((dur - t) / 0.02, 0, 1) * (0.8 + 0.2 * t / dur)
-    y = vox(f0, forms, amp, r, r.uniform(0.95, 1.08), tilt=0.95, breath=0.45, jitter=0.03)
-    return fades(lp(y, 2600, 2) * a, 0.002, 0.02)

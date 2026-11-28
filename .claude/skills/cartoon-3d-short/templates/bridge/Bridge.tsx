@@ -37,21 +37,6 @@ const makeBloom = () => {
   return b;
 };
 
-/** QA gate proof-of-life: patch a pass/effect so the first time the composer really runs it, it prints
- *  "[FX] <name> active" (Effects are run through update(), Passes through render()). An effect that was dropped
- *  from the chain, or a composer that never renders, prints nothing; scripts/fx_gate.mjs treats that as a failure. */
-const fxSeen = new Set<string>();
-const fxLog = <T extends object>(name: string, o: T, info: () => string = () => ""): T => {
-  const x = o as unknown as Record<string, unknown>;
-  const key = typeof x.render === "function" ? "render" : "update"; // Pass.render() / Effect.update()
-  const orig = x[key] as ((...a: unknown[]) => unknown) | undefined;
-  x[key] = function (this: unknown, ...a: unknown[]) {
-    if (!fxSeen.has(name)) { fxSeen.add(name); console.log(`[FX] ${name} active${info()}`); }
-    return orig ? orig.apply(this, a) : undefined;
-  };
-  return o;
-};
-
 const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 
 const useKit = () => {
@@ -67,18 +52,14 @@ const Inner: React.FC<{ id: number; kit: Kit }> = ({ id, kit }) => {
   const world = useMemo(() => new World(kit), [kit]);
   const target = useMemo(() => new THREE.Vector3(), []);
   const on = useMemo(toggles, []);
-  const fx = useMemo(() => {
-    const lens = new LensBlur({ maxCoC: 24, nearScale: 1.2 });
-    fxLog("lens", lens.main, () => ` (cInf=${lens.main.cInf.toFixed(1)})`);
-    return {
-      ink: fxLog("ink", new InkPass(scene, camera as THREE.PerspectiveCamera)),
-      lens,
-      bloom: fxLog("bloom", makeBloom()),
-      tone: new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }),
-      grade: fxLog("grade", new GradeEffect(GRADES.day, GRADE_STRENGTH.day)),
-      grain: fxLog("grain", new GrainEffect({ amount: 0.025, cellPx: 1.5 })), // film grain, OFF by default (inputProps post.grain): the reference measures no grain and it quadruples the file size
-    };
-  }, [camera, scene]);
+  const fx = useMemo(() => ({
+    ink: new InkPass(scene, camera as THREE.PerspectiveCamera),
+    lens: new LensBlur({ maxCoC: 24, nearScale: 1.2 }),
+    bloom: makeBloom(),
+    tone: new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }),
+    grade: new GradeEffect(GRADES.day, GRADE_STRENGTH.day),
+    grain: new GrainEffect({ amount: 0.025, cellPx: 1.5 }), // film grain, OFF by default (inputProps post.grain): the reference measures no grain and it quadruples the file size
+  }), [camera, scene]);
   useEffect(() => () => fx.ink.dispose(), [fx]);
   const post = useMemo(() => (
     <EffectComposer multisampling={4}>
