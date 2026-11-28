@@ -24,6 +24,7 @@ const S: React.FC<SP>[] = [
       <Flood y={lvl} /><Flotsam y={lvl} f={f} spread={[2.2, 5]} />
       <Cuts f={f} end={end} cuts={[
         { at: s, from: [0, 3.5, 8], to: [0, 3.0, 6.5], look: [0, 1, -8], fov: 50 },
+        { at: B(1, "delapan") - 3, from: [-1.6, 1.6, 3.5], to: [-1.4, 1.5, 3.0], look: [0.8, lvl, -4], fov: 46 },
         { at: B(1, "tenggelam") - 3, from: [0.4, lvl + 0.6, 2.6], to: [0.3, lvl + 0.55, 2.2], look: [0, lvl, -0.6], fov: 42 },
         { at: B(1, "bir") - 3, from: [0, 6.5, 10], to: [0, 6.2, 9.4], look: [0, 0.5, -6], fov: 50 }]} />
       <Post light="golden" cInf={8} focus={[0, lvl, -1]} grade={0.7} />
